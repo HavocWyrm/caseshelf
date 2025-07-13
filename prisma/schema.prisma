@@ -12,8 +12,8 @@ datasource db {
 }
 
 model CollectionItem {
-  id Int @id @default(autoincrement())
-  name String
-  type String
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String?
   addedDate DateTime @default(now())
 }
