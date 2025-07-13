@@ -1,4 +1,5 @@
 import DashboardButton from "@component/DashboardButton";
+import AddItemForm from "@component/AddItemForm";
 
 export default function NewItem() {
   return (
@@ -6,6 +7,7 @@ export default function NewItem() {
       <DashboardButton />
 
       <h1 className="text-3xl font-bold mb-4">Create New Item</h1>
+      <AddItemForm />
     </div>
   );
 }
