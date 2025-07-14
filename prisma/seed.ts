@@ -1,4 +1,4 @@
-import { PrismaClient, CollectionItemType, MediaFormat } from "../src/generated/prisma";
+import { PrismaClient, CollectionItemType, MediaFormat, Status } from "../src/generated/prisma";
 
 const prisma = new PrismaClient()
 
@@ -42,6 +42,7 @@ const platforms = [
 const devItems = [
   {
     name: "Jurassic Park",
+    status: Status.OWNED,
     type: CollectionItemType.MOVIE,
     genres: {
       connectOrCreate: [
@@ -68,6 +69,7 @@ const devItems = [
   },
   {
     name: "God of War III",
+    status: Status.OWNED,
     type: CollectionItemType.GAME,
     genres: {
       connectOrCreate: [
@@ -95,6 +97,7 @@ const devItems = [
   },
   {
     name: "Fatal Frame: Maiden of Blackwater",
+    status: Status.OWNED,
     type: CollectionItemType.GAME,
     genres: {
       connectOrCreate: [
@@ -122,6 +125,7 @@ const devItems = [
   },
   {
     name: "Game of Thrones",
+    status: Status.OWNED,
     type: CollectionItemType.SHOW,
     genres: {
       connectOrCreate: [
@@ -141,6 +145,7 @@ const devItems = [
   },
   {
     name: "2 Fast 2 Furious",
+    status: Status.OWNED,
     type: CollectionItemType.MOVIE,
     genres: {
       connectOrCreate: [
@@ -167,6 +172,7 @@ const devItems = [
   },
   {
     name: "The Witcher 3: Wild Hunt",
+    status: Status.OWNED,
     type: CollectionItemType.GAME,
     genres: {
       connectOrCreate: [
@@ -192,6 +198,7 @@ const devItems = [
   },
   {
     name: "Fairy Tail",
+    status: Status.OWNED,
     type: CollectionItemType.SHOW,
     genres: {
       connectOrCreate: [
@@ -217,6 +224,7 @@ const devItems = [
   },
   {
     name: "Scrubs",
+    status: Status.OWNED,
     type: CollectionItemType.SHOW,
     genres: {
       connectOrCreate: [
@@ -235,6 +243,7 @@ const devItems = [
   },
   {
     name: "Inception",
+    status: Status.OWNED,
     type: CollectionItemType.MOVIE,
     genres: {
       connectOrCreate: [
@@ -261,6 +270,7 @@ const devItems = [
   },
   {
     name: "The Matrix",
+    status: Status.WANTED,
     type: CollectionItemType.MOVIE,
     genres: {
       connectOrCreate: [
@@ -288,6 +298,7 @@ const devItems = [
   },
   {
     name: "The Lord of the Rings: The Fellowship of the Ring",
+    status: Status.OWNED,
     type: CollectionItemType.MOVIE,
     genres: {
       connectOrCreate: [
@@ -314,6 +325,7 @@ const devItems = [
   },
   {
     name: "The Matrix Reloaded",
+    status: Status.OWNED,
     type: CollectionItemType.MOVIE,
     genres: {
       connectOrCreate: [
@@ -340,6 +352,7 @@ const devItems = [
   },
   {
     name: "Halo: Combat Evolved",
+    status: Status.WANTED,
     type: CollectionItemType.GAME,
     genres: {
       connectOrCreate: [
@@ -368,6 +381,7 @@ const devItems = [
   },
   {
     name: "Super Mario Odyssey",
+    status: Status.OWNED,
     type: CollectionItemType.GAME,
     genres: {
       connectOrCreate: [
@@ -395,6 +409,7 @@ const devItems = [
   },
   {
     name: "The Legend of Zelda: Breath of the Wild",
+    status: Status.OWNED,
     type: CollectionItemType.GAME,
     genres: {
       connectOrCreate: [
@@ -423,6 +438,7 @@ const devItems = [
   },
   {
     name: "Red Dead Redemption 2",
+    status: Status.WANTED,
     type: CollectionItemType.GAME,
     genres: {
       connectOrCreate: [
@@ -451,6 +467,7 @@ const devItems = [
   },
   {
     name: "Breaking Bad",
+    status: Status.OWNED,
     type: CollectionItemType.SHOW,
     genres: {
       connectOrCreate: [
@@ -470,6 +487,7 @@ const devItems = [
   },
   {
     name: "Teen Titans",
+    status: Status.OWNED,
     type: CollectionItemType.SHOW,
     genres: {
       connectOrCreate: [
@@ -489,6 +507,7 @@ const devItems = [
   },
   {
     name: "Westworld",
+    status: Status.OWNED,
     type: CollectionItemType.SHOW,
     genres: {
       connectOrCreate: [
@@ -508,6 +527,7 @@ const devItems = [
   },
   {
     name: "Friends",
+    status: Status.OWNED,
     type: CollectionItemType.SHOW,
     genres: {
       connectOrCreate: [

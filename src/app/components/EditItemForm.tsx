@@ -1,12 +1,15 @@
 "use client";
 
-import React, {useState} from "react";
+import React, { useState } from "react";
 import ItemForm from "@component/ItemForm";
 
 type Item = {
   id: number;
   name: string;
-  type?: string;
+  description?: string;
+  releaseYear?: number;
+  franchiseName?: string;
+  notes?: string;
 };
 
 type EditItemFormProps = {
@@ -29,6 +32,13 @@ export default function EditItemForm({ item }: EditItemFormProps) {
   };
 
   return (
-    <ItemForm onSubmitAction={handleEdit} itemId={item.id} initialName={item.name} submitLabel="Update Item" />
+    <ItemForm onSubmitAction={handleEdit}
+      itemId={item.id}
+      initialName={item.name}
+      initialDescription={item.description}
+      initialReleaseYear={item.releaseYear || 1900}
+      initialFranchise={item.franchiseName || ""}
+      initialNotes={item.notes || ""}
+      submitLabel="Update Item" />
   );
 }

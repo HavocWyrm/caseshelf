@@ -38,12 +38,18 @@ enum MediaFormat {
   FLOPPY_DISK
 }
 
+enum Status {
+  OWNED
+  WANTED
+}
+
 // ==========================
 // MODELS
 // ==========================
 
 model CollectionItem {
   id          Int                @id @default(autoincrement())
+  status      Status
   name        String
   description String?
   type        CollectionItemType
