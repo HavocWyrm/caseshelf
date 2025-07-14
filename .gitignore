@@ -45,3 +45,6 @@ next-env.d.ts
 # Prisma files
 /prisma/dev.db
 /node_modules/.prisma
+
+#Images
+/public/uploads/cover-art/*

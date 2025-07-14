@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Status } from "@/generated/prisma";
 
 type ItemFormProps = {
   onSubmitAction: (formData: FormData) => Promise<string | null>;
@@ -9,6 +10,7 @@ type ItemFormProps = {
   initialName?: string;
   initialDescription?: string;
   initialReleaseYear?: number | null;
+  initialGenres?: number[];
   initialFranchise?: string;
   initialNotes?: string;
   submitLabel?: string;
@@ -17,10 +19,11 @@ type ItemFormProps = {
 export default function ItemForm({
   onSubmitAction,
   itemId,
-  initialStatus = "",
+  initialStatus = Status.OWNED,
   initialName = "",
   initialDescription = "",
   initialReleaseYear = null,
+  initialGenres = [],
   initialFranchise = "",
   initialNotes = "",
   submitLabel = "Submit",
@@ -29,15 +32,31 @@ export default function ItemForm({
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
   const [releaseYear, setReleaseYear] = useState<number | null>(initialReleaseYear);
+  const [selectedGenres, setSelectedGenres] = useState<number[]>(initialGenres);
+  const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
   const [franchise, setFranchise] = useState(initialFranchise);
   const [notes, setNotes] = useState(initialNotes);
 
   const [status, setStatus] = useState<string | null>(null);
-  const statusOptions = ["Owned", "Wanted"];
+
+  useEffect(() => {
+    setItemStatus(initialStatus);
+  }, [initialStatus]);
 
   useEffect(() => {
     setName(initialName);
   }, [initialName]);
+
+  useEffect(() => {
+    async function fetchGenres() {
+      const res = await fetch('/api/genres');
+      if (res.ok) {
+        const data = await res.json();
+        setGenres(data);
+      }
+    }
+    fetchGenres();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,14 +66,22 @@ export default function ItemForm({
     if (itemId !== undefined) {
       formData.append("id", itemId.toString());
     }
+    formData.append("status", itemStatus);
     formData.append("name", name);
+    formData.append("description", description);
+    formData.append("releaseYear", String(releaseYear));
+    selectedGenres.forEach((genreId) => {
+      formData.append("genres", genreId.toString());
+    });
+    formData.append("franchise", franchise);
+    formData.append("notes", notes);
 
     const result = await onSubmitAction(formData);
     setStatus(result);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="text-black">
       {itemId !== undefined && (
         <input type="hidden" name="id" value={itemId} />
       )}
@@ -66,9 +93,9 @@ export default function ItemForm({
           value={itemStatus}
           onChange={(e) => setItemStatus(e.target.value)}
           className="border px-2 py-1">
-          {statusOptions.map((status) => (
+          {Object.values(Status).map((status) => (
             <option key={status} value={status}>
-              {status}
+              {status.charAt(0) + status.slice(1).toLowerCase()}
             </option>
           ))}
         </select>
@@ -103,7 +130,27 @@ export default function ItemForm({
           className="border px-2 py-1"
         />
       </label>
-      {/* Add genre multiselect here */}
+      <label className="block mb-2">
+        Genres:
+        <select
+          multiple
+          value={selectedGenres.map(String)}
+          onChange={(e) => {
+            const selectedOptions = Array.from(e.target.selectedOptions).map(
+              (option) => Number(option.value)
+            );
+            setSelectedGenres(selectedOptions);
+          }}
+          className="border px-2 py-1"
+          size={4}
+        >
+          {genres.map((genre) => (
+            <option key={genre.id} value={genre.id}>
+              {genre.name}
+            </option>
+          ))}
+        </select>
+      </label>
       <label className="block mb-2">
         Franchise:
         <input
@@ -125,7 +172,7 @@ export default function ItemForm({
         />
       </label>
 
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded mt-2">
+      <button type="submit" className="bg-blue-500 text-black px-4 py-2 rounded mt-2">
         {submitLabel}
       </button>
 

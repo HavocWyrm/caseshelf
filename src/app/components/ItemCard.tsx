@@ -13,7 +13,7 @@ export default function ItemCard({ item }: { item: Item }) {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push(`/item/${item.id}/edit`);
+    router.push(`/item/${item.id}`);
   };
 
   return (

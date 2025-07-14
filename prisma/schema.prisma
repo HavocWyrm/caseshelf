@@ -49,9 +49,10 @@ enum Status {
 
 model CollectionItem {
   id          Int                @id @default(autoincrement())
-  status      Status
+  status      Status             @default(OWNED)
   name        String
   description String?
+  coverArt    Image?
   type        CollectionItemType
   genres      Genre[]            @relation("CollectionItemGenres")
   releaseYear Int?
@@ -110,4 +111,14 @@ model Platform {
   name String @unique
 
   games GameDetails[]
+}
+
+model Image {
+  itemId     Int            @id
+  item       CollectionItem @relation(fields: [itemId], references: [id])
+  url        String
+  filename   String?
+  mimetype   String?
+  size       Int?
+  uploadedAt DateTime       @default(now())
 }
