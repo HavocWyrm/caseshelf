@@ -5,6 +5,19 @@ import ItemCard from "@component/ItemCard";
 export default async function MoviesPage() {
     const items = await prisma.collectionItem.findMany({
         where: { type: "MOVIE" },
+        include: {
+            coverArt: true,
+            genres: true,
+            franchise: true,
+
+            gameDetails: {
+                include: {
+                    platform: true,
+                },
+            },
+            movieDetails: true,
+            showDetails: true,
+        },
     });
 
     return (
@@ -15,10 +28,7 @@ export default async function MoviesPage() {
                 {items.map((item) => (
                     <ItemCard
                         key={item.id}
-                        item={{
-                            ...item,
-                            description: item.description ?? "",
-                        }}
+                        item={item}
                     />
                 ))}
             </div>

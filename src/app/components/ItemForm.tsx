@@ -5,7 +5,7 @@ import { Status } from "@/generated/prisma";
 
 type ItemFormProps = {
   onSubmitAction: (formData: FormData) => Promise<string | null>;
-  itemId?: number;
+  itemId: number;
   initialStatus?: string;
   initialName?: string;
   initialDescription?: string;
@@ -31,6 +31,7 @@ export default function ItemForm({
   const [itemStatus, setItemStatus] = useState(initialStatus);
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [releaseYear, setReleaseYear] = useState<number | null>(initialReleaseYear);
   const [selectedGenres, setSelectedGenres] = useState<number[]>(initialGenres);
   const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
@@ -58,9 +59,33 @@ export default function ItemForm({
     fetchGenres();
   }, []);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedFile(e.target.files?.[0] ?? null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus(null);
+
+    let imageUploadResult = null;
+
+    if (selectedFile) {
+      const formDataForImage = new FormData();
+      formDataForImage.append('image', selectedFile);
+      formDataForImage.append('itemId', itemId.toString());
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataForImage,
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Image upload failed');
+      }
+
+      imageUploadResult = await res.json();
+    }
 
     const formData = new FormData();
     if (itemId !== undefined) {
@@ -76,6 +101,13 @@ export default function ItemForm({
     formData.append("franchise", franchise);
     formData.append("notes", notes);
 
+    // Append uploaded image info if available
+    if (imageUploadResult) {
+      // Example: you could append the image url or image DB id depending on what your backend expects
+      formData.append("imageUrl", imageUploadResult.url);
+      formData.append("imageId", imageUploadResult.itemId?.toString() || '');
+    }
+
     const result = await onSubmitAction(formData);
     setStatus(result);
   };
@@ -86,6 +118,14 @@ export default function ItemForm({
         <input type="hidden" name="id" value={itemId} />
       )}
 
+      <label className="block mb-2">
+        <input
+          type="file"
+          name="image"
+          accept="image/*"
+          onChange={handleFileChange}
+        />
+      </label>
       <label className="block mb-2">
         Status:
         <select

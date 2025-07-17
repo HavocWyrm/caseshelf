@@ -4,17 +4,9 @@ import { useState } from "react";
 import Modal from "react-modal";
 import ItemForm from "@component/ItemForm";
 import { useRouter } from "next/navigation";
+import { CollectionItem } from "@/app/types/collectionItem";
 
-type Item = {
-    id: number;
-    status: string;
-    name: string;
-    description: string;
-    releaseYear?: number | null;
-    genres?: number[];
-    franchise?: string;
-    notes?: string;
-};
+type Item = CollectionItem;
 
 export default function EditItemModal({ item }: { item: Item }) {
     const [showModal, setShowModal] = useState(false);
@@ -55,10 +47,10 @@ export default function EditItemModal({ item }: { item: Item }) {
                     itemId={item.id}
                     initialStatus={item.status}
                     initialName={item.name}
-                    initialDescription={item.description}
+                    initialDescription={item.description ?? ""}
                     initialReleaseYear={item.releaseYear ?? null}
-                    initialGenres={item.genres ?? []}
-                    initialFranchise={item.franchise ?? ""}
+                    initialGenres={item.genres.map((g) => g.id)}
+                    initialFranchise={item.franchise?.name ?? ""}
                     initialNotes={item.notes ?? ""}
                     submitLabel="Save Changes"
                 />
