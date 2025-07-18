@@ -39,8 +39,10 @@ export default function Sidebar() {
 
             {/* Settings at the bottom */}
             <div className="p-4 border-t border-gray-700 flex items-center space-x-3 rounded hover:bg-gray-800 cursor-pointer transition" title={collapsed ? "Settings" : undefined}>
-                <IoSettingsSharp className="text-lg" />
-                <span className={collapsed ? "hidden" : "block"}>Settings</span>
+                <Link href="/settings" className="flex items-center space-x-3 p-2 rounded hover:bg-gray-800 transition">
+                    <IoSettingsSharp className="text-lg" />
+                    <span className={collapsed ? "hidden" : "block"}>Settings</span>
+                </Link>
             </div>
         </aside>
     );
