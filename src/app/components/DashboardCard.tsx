@@ -3,84 +3,114 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { IoAdd } from "react-icons/io5";
-
 import AddItemModal from "@component/AddItemModal";
+
+import {
+  IoGameControllerOutline,
+  IoFilmOutline,
+  IoTvOutline,
+  IoAdd,
+  IoEyeOutline
+} from "react-icons/io5";
 
 type ItemCardProps = {
   itemCount: number;
   itemType: string;
 };
 
-export default function ItemCard({ itemCount, itemType }: ItemCardProps) {
+export default function DashboardCard({ itemCount, itemType }: ItemCardProps) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
-  const [newItemName, setNewItemName] = useState("");
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (showModal) {
-      e.stopPropagation();
-      return;
-    }
-    router.push(`/${itemType.toLowerCase()}s`);
+  const iconMap: Record<string, React.JSX.Element> = {
+    GAME: <IoGameControllerOutline size={64} />,
+    MOVIE: <IoFilmOutline size={64} />,
+    SHOW: <IoTvOutline size={64} />,
   };
 
   const formattedTitle =
     itemType.charAt(0).toUpperCase() + itemType.slice(1).toLowerCase() + "s";
 
+  //TODO: Add real percentage
+  const progressPercent = 42;
+
   return (
-    <div
-      onClick={handleClick}
-      className="border rounded-lg p-4 shadow hover:shadow-md transition-shadow bg-white cursor-pointer"
-    >
-      <div className="flex items-center">
-        <div className="flex-1">
-          <h3 className="text-xl font-semibold text-black">{formattedTitle}</h3>
-          <p className="text-gray-700">Count: {itemCount}</p>
-        </div>
-
-        <div className="h-12 border-l border-gray-300 mx-4" />
-
-        <div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowModal(true);
-            }}
-            className="text-blue-600 hover:text-blue-800 transition-colors"
-            title={`Add new ${formattedTitle}`}
-          >
-            <IoAdd size={24} />
-          </button>
-          <AddItemModal
-            showModal={showModal}
-            onOKAction={async (name) => {
-              if (!name) {
-                alert("Item name is required");
-                return;
-              }
-
-              try {
-                const res = await fetch(
-                  `/api/new-item?type=${itemType.toUpperCase()}`,
-                  { method: "POST", body: new URLSearchParams({ name }) },
-                );
-                const data = await res.json();
-
-                if (res.ok) {
-                  setShowModal(false);
-                  router.refresh();
-                } else {
-                  alert(data.error || "Failed to add item");
-                }
-              } catch {
-                alert("An unexpected error occurred");
-              }
-            }}
-            onCloseAction={() => setShowModal(false)}
+    <div className="card flex flex-col justify-between p-6 h-full cursor-default">
+      {/* Title and progress bar*/}
+      <div className="mx-auto w-2/3 text-center">
+        <div className="w-full h-4 bg-[theme(colors.accent)] rounded-full mb-6 overflow-hidden">
+          <div
+            className="h-4 bg-[theme(colors.secondary)]"
+            style={{ width: `${progressPercent}%` }}
           />
         </div>
+        <h2 className="text-2xl font-bold mb-4">{formattedTitle}</h2>
       </div>
+
+      {/* Icon centered */}
+      <div className="flex justify-center my-8 text-[theme(colors.foreground)]">
+        {iconMap[itemType.toUpperCase()] || null}
+      </div>
+
+      {/* Footer with two halves */}
+      <footer className="flex justify-between items-center text-center text-[theme(colors.accent)]">
+        {/* View All */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            router.push(`/${itemType.toLowerCase()}s`);
+          }}
+          className="flex flex-col items-center text-lg hover:text-[theme(colors.secondary)] transition"
+          title={`View all ${formattedTitle}`}
+          aria-label={`View all ${formattedTitle}`}
+          type="button"
+        >
+          <IoEyeOutline size={28} />
+          <span>View All</span>
+        </button>
+
+        {/* Quick Add */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowModal(true);
+          }}
+          className="flex flex-col items-center text-sm hover:text-[theme(colors.secondary)] transition"
+          title={`Quick add new ${formattedTitle}`}
+          aria-label={`Quick add new ${formattedTitle}`}
+          type="button"
+        >
+          <IoAdd size={28} />
+          <span>Add</span>
+        </button>
+      </footer>
+
+      <AddItemModal
+        showModal={showModal}
+        onOKAction={async (name) => {
+          if (!name) {
+            alert("Item name is required");
+            return;
+          }
+          try {
+            const res = await fetch(
+              `/api/new-item?type=${itemType.toUpperCase()}`,
+              { method: "POST", body: new URLSearchParams({ name }) },
+            );
+            const data = await res.json();
+
+            if (res.ok) {
+              setShowModal(false);
+              router.refresh();
+            } else {
+              alert(data.error || "Failed to add item");
+            }
+          } catch {
+            alert("An unexpected error occurred");
+          }
+        }}
+        onCloseAction={() => setShowModal(false)}
+      />
     </div>
   );
 }

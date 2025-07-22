@@ -1,6 +1,5 @@
 import prisma from "@lib/db";
 
-import AddItemButton from "@component/AddItemButton";
 import DashboardCard from "@component/DashboardCard";
 import { CollectionItemType } from "@/generated/prisma";
 
@@ -18,10 +17,8 @@ export default async function Home() {
   }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold">Welcome to CaseShelf</h1>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-6xl">
+    <main className="h-full w-full max-w-full">
+      <div className="grid grid-cols-3 gap-6 h-full">
         {(Object.entries(groupedByType) as [CollectionItemType, number][]).map(
           ([itemType, itemCount]) => (
             <DashboardCard
