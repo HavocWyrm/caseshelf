@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState} from "react";
+import React, { useState } from "react";
 import ItemForm from "@component/ItemForm";
 
 export default function AddItemForm() {
@@ -12,16 +12,13 @@ export default function AddItemForm() {
       });
 
       const data = await res.json();
-      return res.ok ? "Item added successfully!" : data.error || "Failed to add item";
+      return res.ok
+        ? "Item added successfully!"
+        : data.error || "Failed to add item";
     } catch {
       return "An unexpected error occurred";
     }
   };
 
-  return (
-    <ItemForm
-      onSubmitAction={handleAdd}
-      submitLabel="Add Item"
-    />
-  );
+  return <ItemForm onSubmitAction={handleAdd} submitLabel="Add Item" />;
 }

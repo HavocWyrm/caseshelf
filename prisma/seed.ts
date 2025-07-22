@@ -1,6 +1,11 @@
-import { PrismaClient, CollectionItemType, MediaFormat, Status } from "../src/generated/prisma";
+import {
+  PrismaClient,
+  CollectionItemType,
+  MediaFormat,
+  Status,
+} from "../src/generated/prisma";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 const platforms = [
   { name: "PS1" },
@@ -77,7 +82,8 @@ const devItems = [
         { where: { name: "Fantasy" }, create: { name: "Fantasy" } },
       ],
     },
-    description: "A critically acclaimed action-adventure game set in Greek mythology.",
+    description:
+      "A critically acclaimed action-adventure game set in Greek mythology.",
     releaseYear: 2010,
     franchise: {
       connectOrCreate: {
@@ -88,7 +94,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "PS3" }
+          connect: { name: "PS3" },
         },
         developer: "Santa Monica Studio",
         publisher: "Sony Computer Entertainment",
@@ -134,7 +140,8 @@ const devItems = [
         { where: { name: "Action" }, create: { name: "Action" } },
       ],
     },
-    description: "An epic fantasy drama series based on the novels by George R.R. Martin.",
+    description:
+      "An epic fantasy drama series based on the novels by George R.R. Martin.",
     releaseYear: 2011,
     showDetails: {
       create: {
@@ -153,7 +160,8 @@ const devItems = [
         { where: { name: "Crime" }, create: { name: "Crime" } },
       ],
     },
-    description: "The second installment in the Fast & Furious franchise, featuring high-speed car chases and street racing.",
+    description:
+      "The second installment in the Fast & Furious franchise, featuring high-speed car chases and street racing.",
     releaseYear: 2003,
     franchise: {
       connectOrCreate: {
@@ -191,7 +199,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "PS4" }
+          connect: { name: "PS4" },
         },
       },
     },
@@ -207,7 +215,8 @@ const devItems = [
         { where: { name: "Action" }, create: { name: "Action" } },
       ],
     },
-    description: "An anime series about a guild of wizards and their adventures.",
+    description:
+      "An anime series about a guild of wizards and their adventures.",
     releaseYear: 2009,
     franchise: {
       connectOrCreate: {
@@ -232,7 +241,8 @@ const devItems = [
         { where: { name: "Drama" }, create: { name: "Drama" } },
       ],
     },
-    description: "A medical comedy-drama series that follows the lives of several employees working at Sacred Heart, a teaching hospital.",
+    description:
+      "A medical comedy-drama series that follows the lives of several employees working at Sacred Heart, a teaching hospital.",
     releaseYear: 2001,
     showDetails: {
       create: {
@@ -279,7 +289,8 @@ const devItems = [
         { where: { name: "Thriller" }, create: { name: "Thriller" } },
       ],
     },
-    description: "A hacker discovers the nature of reality and his role in a war against machines.",
+    description:
+      "A hacker discovers the nature of reality and his role in a war against machines.",
     releaseYear: 1999,
     franchise: {
       connectOrCreate: {
@@ -303,7 +314,7 @@ const devItems = [
     genres: {
       connectOrCreate: [
         { where: { name: "Fantasy" }, create: { name: "Fantasy" } },
-        { where: { name: "Adventure" }, create: { name: "Adventure" } }
+        { where: { name: "Adventure" }, create: { name: "Adventure" } },
       ],
     },
     description: "The first installment of the epic fantasy adventure trilogy.",
@@ -330,10 +341,11 @@ const devItems = [
     genres: {
       connectOrCreate: [
         { where: { name: "Sci-Fi" }, create: { name: "Sci-Fi" } },
-        { where: { name: "Action" }, create: { name: "Action" } }
+        { where: { name: "Action" }, create: { name: "Action" } },
       ],
     },
-    description: "The second installment of the Matrix trilogy, continuing the story of Neo and the fight against the machines.",
+    description:
+      "The second installment of the Matrix trilogy, continuing the story of Neo and the fight against the machines.",
     releaseYear: 2003,
     franchise: {
       connectOrCreate: {
@@ -358,7 +370,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Shooter" }, create: { name: "Shooter" } },
         { where: { name: "Sci-Fi" }, create: { name: "Sci-Fi" } },
-        { where: { name: "Action" }, create: { name: "Action" } }
+        { where: { name: "Action" }, create: { name: "Action" } },
       ],
     },
     description: "The first game in the Halo series.",
@@ -372,7 +384,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "Xbox" }
+          connect: { name: "Xbox" },
         },
         developer: "Bungie",
         publisher: "Microsoft Game Studios",
@@ -386,7 +398,7 @@ const devItems = [
     genres: {
       connectOrCreate: [
         { where: { name: "Platformer" }, create: { name: "Platformer" } },
-        { where: { name: "Adventure" }, create: { name: "Adventure" } }
+        { where: { name: "Adventure" }, create: { name: "Adventure" } },
       ],
     },
     description: "Mario embarks on a globe-trotting adventure.",
@@ -400,7 +412,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "Nintendo Switch" }
+          connect: { name: "Nintendo Switch" },
         },
         developer: "Nintendo",
         publisher: "Nintendo",
@@ -415,7 +427,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Adventure" }, create: { name: "Adventure" } },
         { where: { name: "RPG" }, create: { name: "RPG" } },
-        { where: { name: "Fantasy" }, create: { name: "Fantasy" } }
+        { where: { name: "Fantasy" }, create: { name: "Fantasy" } },
       ],
     },
     description: "Open-world action-adventure game in the Zelda series.",
@@ -429,7 +441,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "Nintendo Switch" }
+          connect: { name: "Nintendo Switch" },
         },
         developer: "Nintendo",
         publisher: "Nintendo",
@@ -444,7 +456,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Western" }, create: { name: "Western" } },
         { where: { name: "Action" }, create: { name: "Action" } },
-        { where: { name: "Adventure" }, create: { name: "Adventure" } }
+        { where: { name: "Adventure" }, create: { name: "Adventure" } },
       ],
     },
     description: "An epic Western-themed action-adventure game.",
@@ -458,7 +470,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "PS4" }
+          connect: { name: "PS4" },
         },
         developer: "Rockstar Games",
         publisher: "Rockstar Games",
@@ -473,7 +485,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Crime" }, create: { name: "Crime" } },
         { where: { name: "Drama" }, create: { name: "Drama" } },
-        { where: { name: "Thriller" }, create: { name: "Thriller" } }
+        { where: { name: "Thriller" }, create: { name: "Thriller" } },
       ],
     },
     description: "A high school chemistry teacher turns to manufacturing meth.",
@@ -493,7 +505,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Action" }, create: { name: "Action" } },
         { where: { name: "Animation" }, create: { name: "Animation" } },
-        { where: { name: "Fantasy" }, create: { name: "Fantasy" } }
+        { where: { name: "Fantasy" }, create: { name: "Fantasy" } },
       ],
     },
     description: "A group of young superheroes team up to fight crime.",
@@ -513,10 +525,11 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Sci-Fi" }, create: { name: "Sci-Fi" } },
         { where: { name: "Western" }, create: { name: "Western" } },
-        { where: { name: "Drama" }, create: { name: "Drama" } }
+        { where: { name: "Drama" }, create: { name: "Drama" } },
       ],
     },
-    description: "A sci-fi drama about androids in a Western-themed amusement park.",
+    description:
+      "A sci-fi drama about androids in a Western-themed amusement park.",
     releaseYear: 2016,
     showDetails: {
       create: {
@@ -532,7 +545,7 @@ const devItems = [
     genres: {
       connectOrCreate: [
         { where: { name: "Comedy" }, create: { name: "Comedy" } },
-        { where: { name: "Romance" }, create: { name: "Romance" } }
+        { where: { name: "Romance" }, create: { name: "Romance" } },
       ],
     },
     description: "A sitcom about six friends living in New York City.",
@@ -544,11 +557,10 @@ const devItems = [
       },
     },
   },
-]
-
+];
 
 async function seedData() {
-  console.log('Seeding...')
+  console.log("Seeding...");
 
   for (const platform of platforms) {
     const result = await prisma.platform.create({
@@ -556,12 +568,12 @@ async function seedData() {
     });
     console.log(`Created platform: ${result.name}`);
   }
-  console.log(process.env.NODE_ENV)
-  if (process.env.NODE_ENV === 'development') {
-    await seedDevData()
+  console.log(process.env.NODE_ENV);
+  if (process.env.NODE_ENV === "development") {
+    await seedDevData();
   }
 
-  console.log('Finished seeding.')
+  console.log("Finished seeding.");
 }
 
 async function seedDevData() {
@@ -580,10 +592,10 @@ async function seedDevData() {
 
 seedData()
   .then(async () => {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

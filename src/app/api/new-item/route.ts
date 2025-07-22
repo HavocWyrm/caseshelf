@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
 import prisma from "@lib/db";
-import { CollectionItemType } from "@/generated/prisma"
+import { CollectionItemType } from "@/generated/prisma";
 
 export async function POST(request: Request) {
   const url = new URL(request.url);
   const typeRaw = url.searchParams.get("type");
 
-  if (!typeRaw || !Object.values(CollectionItemType).includes(typeRaw as CollectionItemType)) {
+  if (
+    !typeRaw ||
+    !Object.values(CollectionItemType).includes(typeRaw as CollectionItemType)
+  ) {
     return NextResponse.json(
       { error: "Invalid or missing collection item type" },
-      { status: 400 }
+      { status: 400 },
     );
   }
   const type = typeRaw as CollectionItemType;
@@ -31,6 +34,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: "Item updated", item: newItem });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to update item" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update item" },
+      { status: 500 },
+    );
   }
 }

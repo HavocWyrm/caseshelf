@@ -32,7 +32,9 @@ export default function ItemForm({
   const [name, setName] = useState(initialName);
   const [description, setDescription] = useState(initialDescription);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [releaseYear, setReleaseYear] = useState<number | null>(initialReleaseYear);
+  const [releaseYear, setReleaseYear] = useState<number | null>(
+    initialReleaseYear,
+  );
   const [selectedGenres, setSelectedGenres] = useState<number[]>(initialGenres);
   const [genres, setGenres] = useState<{ id: number; name: string }[]>([]);
   const [franchise, setFranchise] = useState(initialFranchise);
@@ -50,7 +52,7 @@ export default function ItemForm({
 
   useEffect(() => {
     async function fetchGenres() {
-      const res = await fetch('/api/genres');
+      const res = await fetch("/api/genres");
       if (res.ok) {
         const data = await res.json();
         setGenres(data);
@@ -71,17 +73,17 @@ export default function ItemForm({
 
     if (selectedFile) {
       const formDataForImage = new FormData();
-      formDataForImage.append('image', selectedFile);
-      formDataForImage.append('itemId', itemId.toString());
+      formDataForImage.append("image", selectedFile);
+      formDataForImage.append("itemId", itemId.toString());
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
+      const res = await fetch("/api/upload", {
+        method: "POST",
         body: formDataForImage,
       });
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || 'Image upload failed');
+        throw new Error(err.error || "Image upload failed");
       }
 
       imageUploadResult = await res.json();
@@ -105,7 +107,7 @@ export default function ItemForm({
     if (imageUploadResult) {
       // Example: you could append the image url or image DB id depending on what your backend expects
       formData.append("imageUrl", imageUploadResult.url);
-      formData.append("imageId", imageUploadResult.itemId?.toString() || '');
+      formData.append("imageId", imageUploadResult.itemId?.toString() || "");
     }
 
     const result = await onSubmitAction(formData);
@@ -114,9 +116,7 @@ export default function ItemForm({
 
   return (
     <form onSubmit={handleSubmit} className="text-black">
-      {itemId !== undefined && (
-        <input type="hidden" name="id" value={itemId} />
-      )}
+      {itemId !== undefined && <input type="hidden" name="id" value={itemId} />}
 
       <label className="block mb-2">
         <input
@@ -132,7 +132,8 @@ export default function ItemForm({
           name="status"
           value={itemStatus}
           onChange={(e) => setItemStatus(e.target.value)}
-          className="border px-2 py-1">
+          className="border px-2 py-1"
+        >
           {Object.values(Status).map((status) => (
             <option key={status} value={status}>
               {status.charAt(0) + status.slice(1).toLowerCase()}
@@ -165,7 +166,9 @@ export default function ItemForm({
         <input
           type="number"
           name="releaseYear"
-          value={releaseYear !== null && releaseYear !== undefined ? releaseYear : ""}
+          value={
+            releaseYear !== null && releaseYear !== undefined ? releaseYear : ""
+          }
           onChange={(e) => setReleaseYear(e.target.valueAsNumber)}
           className="border px-2 py-1"
         />
@@ -177,7 +180,7 @@ export default function ItemForm({
           value={selectedGenres.map(String)}
           onChange={(e) => {
             const selectedOptions = Array.from(e.target.selectedOptions).map(
-              (option) => Number(option.value)
+              (option) => Number(option.value),
             );
             setSelectedGenres(selectedOptions);
           }}
@@ -212,7 +215,10 @@ export default function ItemForm({
         />
       </label>
 
-      <button type="submit" className="bg-blue-500 text-black px-4 py-2 rounded mt-2">
+      <button
+        type="submit"
+        className="bg-blue-500 text-black px-4 py-2 rounded mt-2"
+      >
         {submitLabel}
       </button>
 
