@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import AddItemModal from "@component/AddItemModal";
+import ProgressBar from "@component/ProgressBar";
 
 import {
   IoGameControllerOutline,
@@ -31,19 +32,11 @@ export default function DashboardCard({ itemCount, itemType }: ItemCardProps) {
   const formattedTitle =
     itemType.charAt(0).toUpperCase() + itemType.slice(1).toLowerCase() + "s";
 
-  //TODO: Add real percentage
-  const progressPercent = 42;
-
   return (
     <div className="card flex flex-col justify-between p-6 h-full cursor-default">
       {/* Title and progress bar*/}
       <div className="mx-auto w-2/3 text-center">
-        <div className="w-full h-4 bg-[theme(colors.accent)] rounded-full mb-6 overflow-hidden">
-          <div
-            className="h-4 bg-[theme(colors.secondary)]"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
+        <ProgressBar itemType={itemType} />
         <h2 className="text-2xl font-bold mb-4">{formattedTitle}</h2>
       </div>
 
@@ -58,6 +51,7 @@ export default function DashboardCard({ itemCount, itemType }: ItemCardProps) {
         <button
           onClick={(e) => {
             e.stopPropagation();
+            console.log("Navigating to", `/${itemType.toLowerCase()}s`);
             router.push(`/${itemType.toLowerCase()}s`);
           }}
           className="flex flex-col items-center text-lg hover:text-[theme(colors.secondary)] transition"

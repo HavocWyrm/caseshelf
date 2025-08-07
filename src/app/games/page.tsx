@@ -1,24 +1,13 @@
 import prisma from "@lib/db";
 import AddItemButton from "@component/AddItemButton";
 import ItemCard from "@component/ItemCard";
+import { gameItemInclude, GameItem } from "@/app/types/collectionItemQuery";
 
 export default async function GamesPage() {
   const items = await prisma.collectionItem.findMany({
     where: { type: "GAME" },
-    include: {
-      coverArt: true,
-      genres: true,
-      franchise: true,
-
-      gameDetails: {
-        include: {
-          platform: true,
-        },
-      },
-      movieDetails: true,
-      showDetails: true,
-    },
-  });
+    include: gameItemInclude,
+  }) as GameItem[];
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen">

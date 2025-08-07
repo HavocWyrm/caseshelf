@@ -71,4 +71,13 @@ body {
   .sidebar-toggle-btn {
     @apply p-2 rounded hover:bg-[theme(colors.secondary)] transition;
   }
+  .progress-bar{
+    @apply w-full h-6 bg-[theme(colors.accent)] rounded-full mb-6 overflow-hidden relative;
+  }
+  .progress-bar-fill {
+    @apply h-full bg-[theme(colors.secondary)] transition-all relative;
+  }
+  .progress-bar-text {
+    @apply absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none select-none; 
+  } 
 }

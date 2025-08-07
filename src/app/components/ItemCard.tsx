@@ -1,11 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CollectionItem } from "@/app/types/collectionItem";
+import type {
+  GameItem,
+  MovieItem,
+  ShowItem,
+} from "@/app/types/collectionItemQuery";
 
-type Item = CollectionItem;
+type Props = {
+  item: GameItem | MovieItem | ShowItem;
+};
 
-export default function ItemCard({ item }: { item: Item }) {
+export default function ItemCard({ item }: Props) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -24,22 +30,30 @@ export default function ItemCard({ item }: { item: Item }) {
           className="w-full h-48 object-cover rounded-md mb-4"
         />
       )}
+
       <h3 className="text-xl font-semibold" style={{ color: "black" }}>
-        {item.name}: {item.gameDetails?.platform.name}
+        {item.name}
+        {item.type === "GAME" && item.gameDetails?.platform?.name && (
+          <>: {item.gameDetails.platform.name}</>
+        )}
       </h3>
-      {item.type == "MOVIE" && (
+
+      {item.type === "MOVIE" && item.movieDetails && (
         <p className="text-gray-600 mt-1" style={{ color: "black" }}>
           {item.movieDetails.runtimeMinutes} minutes
         </p>
       )}
-      {item.type == "SHOW" && (
+
+      {item.type === "SHOW" && item.showDetails && (
         <p className="text-gray-600 mt-1" style={{ color: "black" }}>
           {item.showDetails.seasonCount} seasons
         </p>
       )}
+
       <p className="text-gray-600 mt-1" style={{ color: "black" }}>
         {item.status}
       </p>
+
       <p className="text-gray-600 mt-1" style={{ color: "black" }}>
         {item.description}
       </p>
