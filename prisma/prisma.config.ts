@@ -1,6 +1,9 @@
-import "dotenv/config";
 import type { PrismaConfig } from "prisma";
 
+import "dotenv/config";
+
 export default {
-  // now you can use process.env variables
+  migrations: {
+    seed: `ts-node ./seed.ts`,
+  }
 } satisfies PrismaConfig;

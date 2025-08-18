@@ -80,4 +80,13 @@ body {
   .progress-bar-text {
     @apply absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none select-none; 
   } 
+  .item-card {
+    @apply flex flex-col bg-cover bg-center aspect-[3/4] rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer;
+  }
+  .item-card-title {
+    @apply w-full text-center bg-black text-white mt-auto text-sm;
+  }
+  .item-card-format{
+    @apply text-sm text-right;
+  }
 }

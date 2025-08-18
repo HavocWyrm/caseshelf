@@ -23,7 +23,11 @@ export type GameItem = PrismaGameItem & { type: "GAME" };
 
 export const movieItemInclude = {
     ...sharedIncludes,
-    movieDetails: true,
+    movieDetails: {
+        include: {
+            format: true,
+        },
+    },
 } as const;
 
 type PrismaMovieItem = Prisma.CollectionItemGetPayload<{
@@ -34,7 +38,11 @@ export type MovieItem = PrismaMovieItem & { type: "MOVIE" };
 
 export const showItemInclude = {
     ...sharedIncludes,
-    showDetails: true,
+    showDetails: {
+        include: {
+            format: true,
+        },
+    },
 } as const;
 
 type PrismaShowItem = Prisma.CollectionItemGetPayload<{

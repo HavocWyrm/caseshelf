@@ -21,23 +21,6 @@ enum CollectionItemType {
   SHOW
 }
 
-enum MediaFormat {
-  BLURAY
-  BLURAY_3D
-  UHD_BLURAY
-  VINYL
-  DVD
-  CD
-  CASSETTE
-  CARTRIDGE
-  VHS
-  BETAMAX
-  VCD
-  HD_DVD
-  LASERDISC
-  FLOPPY_DISK
-}
-
 enum Status {
   OWNED
   WANTED
@@ -68,12 +51,13 @@ model CollectionItem {
 }
 
 model GameDetails {
-  itemId     Int            @id
-  item       CollectionItem @relation(fields: [itemId], references: [id])
+  itemId    Int            @id
+  item      CollectionItem @relation(fields: [itemId], references: [id])
+  developer String?
+  publisher String?
+
   platformId Int
-  platform   Platform       @relation(fields: [platformId], references: [id])
-  developer  String?
-  publisher  String?
+  platform   Platform @relation(fields: [platformId], references: [id])
 }
 
 model MovieDetails {
@@ -82,14 +66,18 @@ model MovieDetails {
   director       String?
   writer         String?
   runtimeMinutes Int?
-  discFormat     MediaFormat?
+
+  formatId Int
+  format   Format @relation(fields: [formatId], references: [id])
 }
 
 model ShowDetails {
   itemId      Int            @id
   item        CollectionItem @relation(fields: [itemId], references: [id])
   seasonCount Int?
-  discFormat  MediaFormat?
+
+  formatId Int
+  format   Format @relation(fields: [formatId], references: [id])
 }
 
 model Genre {
@@ -109,8 +97,18 @@ model Franchise {
 model Platform {
   id   Int    @id @default(autoincrement())
   name String @unique
+  logo String
 
   games GameDetails[]
+}
+
+model Format {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  logo String
+
+  movies MovieDetails[]
+  shows  ShowDetails[]
 }
 
 model Image {
