@@ -52,7 +52,7 @@ export default function DashboardCard({ itemCount, itemType }: ItemCardProps) {
           onClick={(e) => {
             e.stopPropagation();
             console.log("Navigating to", `/${itemType.toLowerCase()}s`);
-            router.push(`/${itemType.toLowerCase()}s`);
+            router.push(`/collection/${itemType.toLowerCase()}`);
           }}
           className="flex flex-col items-center text-lg hover:text-[theme(colors.secondary)] transition"
           title={`View all ${formattedTitle}`}

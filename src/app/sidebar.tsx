@@ -15,9 +15,9 @@ export default function Sidebar() {
 
   const menuItems = [
     { name: "Dashboard", icon: <IoAlbumsOutline />, href: "/" },
-    { name: "Games", icon: <IoGameControllerOutline />, href: "/games" },
-    { name: "Movies", icon: <IoFilmOutline />, href: "/movies" },
-    { name: "Shows", icon: <IoTvOutline />, href: "/shows" },
+    { name: "Games", icon: <IoGameControllerOutline />, href: "/collection/game" },
+    { name: "Movies", icon: <IoFilmOutline />, href: "/collection/movie" },
+    { name: "Shows", icon: <IoTvOutline />, href: "/collection/show" },
   ];
 
   return (
