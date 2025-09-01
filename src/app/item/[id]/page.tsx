@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import prisma from "@lib/db";
-import EditItemModal from "@/components/features/items/EditItemModal";
+import EditItemModal from "@component/features/items/EditItemModal";
 
 interface ItemDetailPageProps {
   params: {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import ItemForm from "@/components/features/items/ItemForm";
+import ItemForm from "@component/features/items/ItemForm";
 
 export default function AddItemForm() {
   const handleAdd = async (formData: FormData): Promise<string | null> => {
