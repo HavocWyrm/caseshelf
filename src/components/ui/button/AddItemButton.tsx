@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import AddItemModal from "@component/AddItemModal";
+import AddItemModal from "@/components/features/items/AddItemModal";
 import { useRouter } from "next/navigation";
 
 type AddItemButtonProps = {

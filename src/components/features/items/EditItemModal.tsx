@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Modal from "react-modal";
-import ItemForm from "@component/ItemForm";
+import ItemForm from "@/components/features/items/ItemForm";
 import { useRouter } from "next/navigation";
 import { CollectionItem } from "@/app/types/collectionItem";
 

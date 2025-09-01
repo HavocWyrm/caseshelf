@@ -21,20 +21,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[theme(colors.background)] text-[theme(colors.foreground)]`}
-      >
-        <div className="flex h-screen">
+      <body className="app-body">
+        <div className="app-container">
           <Sidebar />
-          <div className="flex flex-col flex-1 overflow-hidden">
-            {/* Header */}
-            <header className="text-center p-4">
-              <h1 className="text-4xl font-bold text-[theme(colors.foreground)]">
-                CaseShelf
-              </h1>
-            </header>
-            {/* Page Content */}
-            <main className="flex-1 overflow-y-auto p-6 flex justify-center items-start">
+          <div className="content-wrapper">
+            <main className="main-content">
               {children}
             </main>
           </div>

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import AddItemModal from "@component/AddItemModal";
-import ProgressBar from "@component/ProgressBar";
+import AddItemModal from "@/components/features/items/AddItemModal";
+import ProgressBar from "@/components/ui/ProgressBar";
 
 import {
   IoGameControllerOutline,
@@ -15,11 +15,10 @@ import {
 } from "react-icons/io5";
 
 type ItemCardProps = {
-  itemCount: number;
   itemType: string;
 };
 
-export default function DashboardCard({ itemCount, itemType }: ItemCardProps) {
+export default function DashboardCard({ itemType }: ItemCardProps) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 

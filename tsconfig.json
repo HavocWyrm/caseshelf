@@ -30,7 +30,7 @@
         "./lib/*"
       ],
       "@component/*": [
-        "./src/app/components/*"
+        "./src/components/*"
       ]
     }
   },
