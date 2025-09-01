@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import DashboardButton from "@component/DashboardButton";
-import AddItemModal from "@component/AddItemModal";
+import DashboardButton from "@/components/ui/button/DashboardReturnButton";
+import AddItemModal from "@/components/features/items/AddItemModal";
 
 export default function NewItem() {
   const [showModal, setShowModal] = useState(false);

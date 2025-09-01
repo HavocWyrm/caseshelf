@@ -1,47 +1,71 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { IoAlbumsOutline, IoGameControllerOutline, IoFilmOutline, IoTvOutline, IoSettingsSharp, IoMenuOutline, IoChevronBackOutline, } from 'react-icons/io5';
+import { usePathname } from "next/navigation";
+import {
+  IoAlbumsOutline,
+  IoGameControllerOutline,
+  IoFilmOutline,
+  IoTvOutline,
+  IoSettingsSharp,
+} from "react-icons/io5";
 
 export default function Sidebar() {
-    const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
 
-    const menuItems = [
-        { name: "Dashboard", icon: <IoAlbumsOutline />, href: "/" },
-        { name: "Games", icon: <IoGameControllerOutline />, href: "/games" },
-        { name: "Movies", icon: <IoFilmOutline />, href: "/movies" },
-        { name: "Shows", icon: <IoTvOutline />, href: "/shows" },
-    ];
+  const menuItems = [
+    { name: "Dashboard", icon: <IoAlbumsOutline />, href: "/" },
+    { name: "Games", icon: <IoGameControllerOutline />, href: "/collection/game" },
+    { name: "Movies", icon: <IoFilmOutline />, href: "/collection/movie" },
+    { name: "Shows", icon: <IoTvOutline />, href: "/collection/show" },
+  ];
 
-    return (
-        <aside className={`bg-gray-900 text-white flex flex-col h-screen ${collapsed ? "w-16" : "w-64"} transition-width duration-300 ease-in-out`}>
-            {/* Collapse Toggle at the top */}
-            <div className="p-4 border-b border-gray-700 flex justify-center">
-                <button onClick={() => setCollapsed(!collapsed)} className="p-2 rounded hover:bg-gray-800 transition" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} title={collapsed ? "Expand sidebar" : "Collapse sidebar"} >
-                    {collapsed ? <IoMenuOutline size={24} /> : <IoChevronBackOutline size={24} />}
-                </button>
-            </div>
+  return (
+    <>
+      {/* Sidebar */}
+      <aside className="sidebar w-24 h-screen sticky top-0 flex flex-col z-40">
+        {/* Home / Favicon button */}
+        <div className="p-4 border-b border-[theme(colors.accent)] flex justify-center items-center">
+          <Link href="/" title="Home" aria-label="Home">
+            <img
+              src="/favicon.ico"
+              alt="CaseShelf Home"
+              className="w-8 h-8"
+            />
+          </Link>
+        </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 p-4">
-                <ul className="space-y-2">
-                    {menuItems.map(({ name, icon, href }) => (
-                        <li key={name}>
-                            <Link href={href} className="flex items-center space-x-3 p-2 rounded hover:bg-gray-800 transition" title={collapsed ? name : undefined}>
-                                <span className='text-lg'>{icon}</span>
-                                <span className={collapsed ? "hidden" : "block"}>{name}</span>
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
+        {/* Navigation */}
+        <nav className="flex flex-col justify-start flex-1 p-2 space-y-8">
+          <ul className="flex flex-col space-y-2 items-center">
+            {menuItems.map(({ name, icon, href }) => {
+              const isActive = pathname === href;
+              return (
+                <li key={name}>
+                  <Link
+                    href={href}
+                    className={`nav-item flex items-center justify-center  rounded transition cursor-pointer    ${isActive ? "bg-[theme(colors.secondary)] text-[theme(colors.primary)]"
+                      : "hover:bg-[theme(colors.secondary)]"
+                      }  `}
+                    title={name}                  >
+                    <span className="text-4xl">{icon}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
-            {/* Settings at the bottom */}
-            <div className="p-4 border-t border-gray-700 flex items-center space-x-3 rounded hover:bg-gray-800 cursor-pointer transition" title={collapsed ? "Settings" : undefined}>
-                <IoSettingsSharp className="text-lg" />
-                <span className={collapsed ? "hidden" : "block"}>Settings</span>
-            </div>
-        </aside>
-    );
+        {/* Settings */}
+        <div
+          className="p-4 border-t border-[theme(colors.accent)] flex items-center justify-center hover:bg-[theme(colors.secondary)] cursor-pointer transition"
+          title="Settings"
+        >
+          <Link href="/settings" title="Settings" aria-label="Settings">
+            <IoSettingsSharp className="text-xl" />
+          </Link>
+        </div>
+      </aside >
+    </>
+  );
 }

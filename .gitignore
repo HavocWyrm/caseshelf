@@ -44,6 +44,7 @@ next-env.d.ts
 
 # Prisma files
 /prisma/dev.db
+/prisma/migrations
 /node_modules/.prisma
 
 #Images

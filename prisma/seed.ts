@@ -1,42 +1,52 @@
-import { PrismaClient, CollectionItemType, MediaFormat, Status } from "../src/generated/prisma";
+import { PrismaClient, CollectionItemType, Status, } from "../src/generated/prisma/";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 const platforms = [
-  { name: "PS1" },
-  { name: "PS2" },
-  { name: "PS3" },
-  { name: "PS4" },
-  { name: "PS5" },
-  { name: "PSP" },
-  { name: "PS Vita" },
-  { name: "Xbox" },
-  { name: "Xbox 360" },
-  { name: "Xbox One" },
-  { name: "Xbox Series X|S" },
-  { name: "Nintendo Entertainment System (NES)" },
-  { name: "Super Nintendo (SNES)" },
-  { name: "Nintendo 64" },
-  { name: "GameCube" },
-  { name: "Wii" },
-  { name: "Wii U" },
-  { name: "Nintendo Switch" },
-  { name: "Nintendo Switch 2" },
-  { name: "Game Boy" },
-  { name: "Game Boy Color" },
-  { name: "Game Boy Advance" },
-  { name: "Nintendo DS" },
-  { name: "Nintendo 3DS" },
-  { name: "PC" },
-  { name: "Sega Genesis" },
-  { name: "Sega Saturn" },
-  { name: "Sega Dreamcast" },
-  { name: "Atari 2600" },
-  { name: "Atari Jaguar" },
-  { name: "Atari Lynx" },
-  { name: "Commodore 64" },
-  { name: "Neo Geo" },
-  { name: "Mega Drive" },
+  { name: "PS1", logo: "ps1Logo.svg" },
+  { name: "PS2", logo: "ps2Logo.svg" },
+  { name: "PS3", logo: "ps3Logo.svg" },
+  { name: "PS4", logo: "ps4Logo.svg" },
+  { name: "PS5", logo: "ps5Logo.svg" },
+  { name: "PSP", logo: "pspLogo.svg" },
+  { name: "PS Vita", logo: "psvitaLogo.svg" },
+  { name: "Xbox", logo: "xboxLogo.svg" },
+  { name: "Xbox 360", logo: "xbox360Logo.svg" },
+  { name: "Xbox One", logo: "xboxoneLogo.svg" },
+  { name: "Xbox Series X|S", logo: "xboxseriesXLogo.svg" },
+  { name: "Nintendo Entertainment System (NES)", logo: "nesLogo.svg" },
+  { name: "Super Nintendo (SNES)", logo: "snesLogo.svg" },
+  { name: "Nintendo 64", logo: "nintendo64Logo.svg" },
+  { name: "GameCube", logo: "gamecubeLogo.svg" },
+  { name: "Wii", logo: "wiiLogo.svg" },
+  { name: "Wii U", logo: "wiiULogo.svg" },
+  { name: "Nintendo Switch", logo: "switchLogo.svg" },
+  { name: "Nintendo Switch 2", logo: "switch2Logo.svg" },
+  { name: "Game Boy", logo: "gameboyLogo.svg" },
+  { name: "Game Boy Color", logo: "gameboycolorLogo.svg" },
+  { name: "Game Boy Advance", logo: "gbaLogo.svg" },
+  { name: "Nintendo DS", logo: "dsLogo.svg" },
+  { name: "Nintendo 3DS", logo: "3dsLogo.svg" },
+  { name: "PC", logo: "pcLogo.svg" },
+  { name: "Sega Saturn", logo: "segasaturnLogo.svg" },
+  { name: "Sega Dreamcast", logo: "segadreamcastLogo.svg" },
+  { name: "Atari 2600", logo: "atari2600Logo.svg" },
+  { name: "Atari Jaguar", logo: "atarijaguarLogo.svg" },
+  { name: "Atari Lynx", logo: "atariolynxLogo.svg" },
+  { name: "Neo Geo", logo: "neogeoLogo.svg" },
+  { name: "Sega Mega Drive", logo: "segamegadriveLogo.svg" },
+];
+
+const formats = [
+  { name: "Blu-ray", logo: "blurayLogo.svg" },
+  { name: "Blu-ray 3D", logo: "bluray3dLogo.svg" },
+  { name: "UHD Blu-ray", logo: "uhdblurayLogo.svg" },
+  { name: "DVD", logo: "dvdLogo.svg" },
+  { name: "VHS", logo: "vhsLogo.svg" },
+  { name: "Betamax", logo: "betamaxLogo.svg" },
+  { name: "VCD", logo: "vcdLogo.svg" },
+  { name: "HD DVD", logo: "hddvdLogo.svg" },
+  { name: "Laserdisc", logo: "laserdisclogo.svg" },
 ];
 
 const devItems = [
@@ -63,7 +73,9 @@ const devItems = [
         director: "Steven Spielberg",
         writer: "Michael Crichton, David Koepp",
         runtimeMinutes: 127,
-        discFormat: MediaFormat.UHD_BLURAY,
+        format: {
+          connect: { name: "UHD Blu-ray" },
+        },
       },
     },
   },
@@ -77,7 +89,8 @@ const devItems = [
         { where: { name: "Fantasy" }, create: { name: "Fantasy" } },
       ],
     },
-    description: "A critically acclaimed action-adventure game set in Greek mythology.",
+    description:
+      "A critically acclaimed action-adventure game set in Greek mythology.",
     releaseYear: 2010,
     franchise: {
       connectOrCreate: {
@@ -88,7 +101,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "PS3" }
+          connect: { name: "PS3" },
         },
         developer: "Santa Monica Studio",
         publisher: "Sony Computer Entertainment",
@@ -134,12 +147,15 @@ const devItems = [
         { where: { name: "Action" }, create: { name: "Action" } },
       ],
     },
-    description: "An epic fantasy drama series based on the novels by George R.R. Martin.",
+    description:
+      "An epic fantasy drama series based on the novels by George R.R. Martin.",
     releaseYear: 2011,
     showDetails: {
       create: {
         seasonCount: 8,
-        discFormat: MediaFormat.BLURAY,
+        format: {
+          connect: { name: "Blu-ray" },
+        },
       },
     },
   },
@@ -153,7 +169,8 @@ const devItems = [
         { where: { name: "Crime" }, create: { name: "Crime" } },
       ],
     },
-    description: "The second installment in the Fast & Furious franchise, featuring high-speed car chases and street racing.",
+    description:
+      "The second installment in the Fast & Furious franchise, featuring high-speed car chases and street racing.",
     releaseYear: 2003,
     franchise: {
       connectOrCreate: {
@@ -166,7 +183,9 @@ const devItems = [
         director: "John Singleton",
         writer: "Michael Brandt, Derek Haas",
         runtimeMinutes: 107,
-        discFormat: MediaFormat.DVD,
+        format: {
+          connect: { name: "DVD" },
+        },
       },
     },
   },
@@ -191,7 +210,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "PS4" }
+          connect: { name: "PS4" },
         },
       },
     },
@@ -207,7 +226,8 @@ const devItems = [
         { where: { name: "Action" }, create: { name: "Action" } },
       ],
     },
-    description: "An anime series about a guild of wizards and their adventures.",
+    description:
+      "An anime series about a guild of wizards and their adventures.",
     releaseYear: 2009,
     franchise: {
       connectOrCreate: {
@@ -218,7 +238,9 @@ const devItems = [
     showDetails: {
       create: {
         seasonCount: 8,
-        discFormat: MediaFormat.BLURAY,
+        format: {
+          connect: { name: "Blu-ray" },
+        },
       },
     },
   },
@@ -232,12 +254,15 @@ const devItems = [
         { where: { name: "Drama" }, create: { name: "Drama" } },
       ],
     },
-    description: "A medical comedy-drama series that follows the lives of several employees working at Sacred Heart, a teaching hospital.",
+    description:
+      "A medical comedy-drama series that follows the lives of several employees working at Sacred Heart, a teaching hospital.",
     releaseYear: 2001,
     showDetails: {
       create: {
         seasonCount: 9,
-        discFormat: MediaFormat.DVD,
+        format: {
+          connect: { name: "DVD" },
+        },
       },
     },
   },
@@ -264,7 +289,9 @@ const devItems = [
         director: "Christopher Nolan",
         writer: "Christopher Nolan",
         runtimeMinutes: 148,
-        discFormat: MediaFormat.BLURAY,
+        format: {
+          connect: { name: "Blu-ray" },
+        },
       },
     },
   },
@@ -279,7 +306,8 @@ const devItems = [
         { where: { name: "Thriller" }, create: { name: "Thriller" } },
       ],
     },
-    description: "A hacker discovers the nature of reality and his role in a war against machines.",
+    description:
+      "A hacker discovers the nature of reality and his role in a war against machines.",
     releaseYear: 1999,
     franchise: {
       connectOrCreate: {
@@ -292,7 +320,9 @@ const devItems = [
         director: "The Wachowskis",
         writer: "The Wachowskis",
         runtimeMinutes: 136,
-        discFormat: MediaFormat.DVD,
+        format: {
+          connect: { name: "DVD" },
+        },
       },
     },
   },
@@ -303,7 +333,7 @@ const devItems = [
     genres: {
       connectOrCreate: [
         { where: { name: "Fantasy" }, create: { name: "Fantasy" } },
-        { where: { name: "Adventure" }, create: { name: "Adventure" } }
+        { where: { name: "Adventure" }, create: { name: "Adventure" } },
       ],
     },
     description: "The first installment of the epic fantasy adventure trilogy.",
@@ -319,7 +349,9 @@ const devItems = [
         director: "Peter Jackson",
         writer: "J.R.R. Tolkien, Fran Walsh, Philippa Boyens",
         runtimeMinutes: 178,
-        discFormat: MediaFormat.UHD_BLURAY,
+        format: {
+          connect: { name: "UHD Blu-ray" },
+        },
       },
     },
   },
@@ -330,10 +362,11 @@ const devItems = [
     genres: {
       connectOrCreate: [
         { where: { name: "Sci-Fi" }, create: { name: "Sci-Fi" } },
-        { where: { name: "Action" }, create: { name: "Action" } }
+        { where: { name: "Action" }, create: { name: "Action" } },
       ],
     },
-    description: "The second installment of the Matrix trilogy, continuing the story of Neo and the fight against the machines.",
+    description:
+      "The second installment of the Matrix trilogy, continuing the story of Neo and the fight against the machines.",
     releaseYear: 2003,
     franchise: {
       connectOrCreate: {
@@ -346,7 +379,9 @@ const devItems = [
         director: "The Wachowskis",
         writer: "The Wachowskis",
         runtimeMinutes: 138,
-        discFormat: MediaFormat.BLURAY,
+        format: {
+          connect: { name: "Blu-ray" },
+        },
       },
     },
   },
@@ -358,7 +393,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Shooter" }, create: { name: "Shooter" } },
         { where: { name: "Sci-Fi" }, create: { name: "Sci-Fi" } },
-        { where: { name: "Action" }, create: { name: "Action" } }
+        { where: { name: "Action" }, create: { name: "Action" } },
       ],
     },
     description: "The first game in the Halo series.",
@@ -372,7 +407,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "Xbox" }
+          connect: { name: "Xbox" },
         },
         developer: "Bungie",
         publisher: "Microsoft Game Studios",
@@ -386,7 +421,7 @@ const devItems = [
     genres: {
       connectOrCreate: [
         { where: { name: "Platformer" }, create: { name: "Platformer" } },
-        { where: { name: "Adventure" }, create: { name: "Adventure" } }
+        { where: { name: "Adventure" }, create: { name: "Adventure" } },
       ],
     },
     description: "Mario embarks on a globe-trotting adventure.",
@@ -400,7 +435,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "Nintendo Switch" }
+          connect: { name: "Nintendo Switch" },
         },
         developer: "Nintendo",
         publisher: "Nintendo",
@@ -415,7 +450,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Adventure" }, create: { name: "Adventure" } },
         { where: { name: "RPG" }, create: { name: "RPG" } },
-        { where: { name: "Fantasy" }, create: { name: "Fantasy" } }
+        { where: { name: "Fantasy" }, create: { name: "Fantasy" } },
       ],
     },
     description: "Open-world action-adventure game in the Zelda series.",
@@ -429,7 +464,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "Nintendo Switch" }
+          connect: { name: "Nintendo Switch" },
         },
         developer: "Nintendo",
         publisher: "Nintendo",
@@ -444,7 +479,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Western" }, create: { name: "Western" } },
         { where: { name: "Action" }, create: { name: "Action" } },
-        { where: { name: "Adventure" }, create: { name: "Adventure" } }
+        { where: { name: "Adventure" }, create: { name: "Adventure" } },
       ],
     },
     description: "An epic Western-themed action-adventure game.",
@@ -458,7 +493,7 @@ const devItems = [
     gameDetails: {
       create: {
         platform: {
-          connect: { name: "PS4" }
+          connect: { name: "PS4" },
         },
         developer: "Rockstar Games",
         publisher: "Rockstar Games",
@@ -473,7 +508,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Crime" }, create: { name: "Crime" } },
         { where: { name: "Drama" }, create: { name: "Drama" } },
-        { where: { name: "Thriller" }, create: { name: "Thriller" } }
+        { where: { name: "Thriller" }, create: { name: "Thriller" } },
       ],
     },
     description: "A high school chemistry teacher turns to manufacturing meth.",
@@ -481,7 +516,9 @@ const devItems = [
     showDetails: {
       create: {
         seasonCount: 5,
-        discFormat: MediaFormat.DVD,
+        format: {
+          connect: { name: "DVD" },
+        },
       },
     },
   },
@@ -493,7 +530,7 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Action" }, create: { name: "Action" } },
         { where: { name: "Animation" }, create: { name: "Animation" } },
-        { where: { name: "Fantasy" }, create: { name: "Fantasy" } }
+        { where: { name: "Fantasy" }, create: { name: "Fantasy" } },
       ],
     },
     description: "A group of young superheroes team up to fight crime.",
@@ -501,7 +538,9 @@ const devItems = [
     showDetails: {
       create: {
         seasonCount: 5,
-        discFormat: MediaFormat.DVD,
+        format: {
+          connect: { name: "DVD" },
+        },
       },
     },
   },
@@ -513,15 +552,18 @@ const devItems = [
       connectOrCreate: [
         { where: { name: "Sci-Fi" }, create: { name: "Sci-Fi" } },
         { where: { name: "Western" }, create: { name: "Western" } },
-        { where: { name: "Drama" }, create: { name: "Drama" } }
+        { where: { name: "Drama" }, create: { name: "Drama" } },
       ],
     },
-    description: "A sci-fi drama about androids in a Western-themed amusement park.",
+    description:
+      "A sci-fi drama about androids in a Western-themed amusement park.",
     releaseYear: 2016,
     showDetails: {
       create: {
         seasonCount: 3,
-        discFormat: MediaFormat.UHD_BLURAY,
+        format: {
+          connect: { name: "UHD Blu-ray" },
+        },
       },
     },
   },
@@ -532,7 +574,7 @@ const devItems = [
     genres: {
       connectOrCreate: [
         { where: { name: "Comedy" }, create: { name: "Comedy" } },
-        { where: { name: "Romance" }, create: { name: "Romance" } }
+        { where: { name: "Romance" }, create: { name: "Romance" } },
       ],
     },
     description: "A sitcom about six friends living in New York City.",
@@ -540,15 +582,16 @@ const devItems = [
     showDetails: {
       create: {
         seasonCount: 10,
-        discFormat: MediaFormat.DVD,
+        format: {
+          connect: { name: "DVD" },
+        },
       },
     },
   },
-]
-
+];
 
 async function seedData() {
-  console.log('Seeding...')
+  console.log("Seeding...");
 
   for (const platform of platforms) {
     const result = await prisma.platform.create({
@@ -556,12 +599,19 @@ async function seedData() {
     });
     console.log(`Created platform: ${result.name}`);
   }
-  console.log(process.env.NODE_ENV)
-  if (process.env.NODE_ENV === 'development') {
+  for (const format of formats) {
+    const result = await prisma.format.create({
+      data: format,
+    });
+    console.log(`Created format: ${result.name}`);
+  }
+
+  console.log(process.env.APP_ENV)
+  if (process.env.APP_ENV === 'development') {
     await seedDevData()
   }
 
-  console.log('Finished seeding.')
+  console.log("Finished seeding.");
 }
 
 async function seedDevData() {
@@ -580,10 +630,10 @@ async function seedDevData() {
 
 seedData()
   .then(async () => {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   })
   .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

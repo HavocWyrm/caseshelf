@@ -10,11 +10,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-primary: #5b0b2a;
+  --color-secondary: #101519;
+  --color-accent: #9fa2b2;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #2a2a2a;
     --foreground: #ededed;
   }
 }
@@ -22,5 +26,102 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  .app-body {
+    @apply antialiased bg-background text-foreground;
+    font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  }  
+  .app-container {
+    @apply flex h-screen;
+  }  
+  .content-wrapper {
+    @apply flex flex-col flex-1 overflow-hidden;
+  }  
+  .main-content {
+    @apply flex-1 overflow-y-auto p-6 flex justify-center items-start;
+  }
+  .app-header {
+    @apply bg-background border-b border-accent shadow-sm flex-shrink-0;
+    height: 4rem;
+  }  
+  .header-content {
+    @apply h-full px-6 flex items-center;
+  }  
+  .header-title {
+    @apply text-2xl font-semibold text-foreground;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium transition-colors;
+    @apply text-white bg-primary hover:bg-secondary;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }  
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium border transition-colors;
+    @apply border-primary text-primary bg-transparent;
+    @apply hover:bg-primary hover:text-white;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }  
+  .icon-btn {
+    @apply text-foreground hover:text-accent transition-colors;
+    @apply focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+  }
+  .card {
+    @apply flex flex-col w-full rounded-2xl shadow-md p-4 bg-primary text-foreground;
+  }
+  .heading {
+    @apply text-2xl font-semibold text-foreground mb-2;
+  }  
+  .subheading {
+    @apply text-lg font-medium text-foreground mb-1;
+  }  
+  .text-muted {
+    @apply text-sm text-accent;
+  }
+  .sidebar {
+    @apply w-64 h-full bg-primary text-white flex flex-col;
+  }  
+  .nav-item {
+    @apply px-4 py-2 hover:bg-secondary cursor-pointer rounded;
+  }  
+  .nav-item-active {
+    @apply bg-secondary font-semibold;
+  }  
+  .sidebar-toggle-btn {
+    @apply p-2 rounded hover:bg-secondary transition;
+  }
+  .progress-bar {
+    @apply w-full h-6 bg-accent rounded-full mb-6 overflow-hidden relative;
+  }  
+  .progress-bar-fill {
+    @apply h-full bg-secondary transition-all relative;
+  }  
+  .progress-bar-text {
+    @apply absolute top-0 left-0 right-0 bottom-0 flex items-center justify-center text-white font-semibold opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none select-none;
+  }
+  .item-card {
+    @apply flex flex-col bg-cover bg-center aspect-[3/4] rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer;
+  }  
+  .item-card-title {
+    @apply w-full text-center bg-black text-white mt-auto text-sm;
+  }  
+  .item-card-format {
+    @apply text-sm text-right;
+  }
+  .dashboard-page {
+    @apply w-full h-full;
+  }  
+  .dashboard-grid {
+    @apply grid grid-cols-3 gap-6 h-full;
+  }
+  .collection-page {
+    @apply flex flex-col items-center justify-center min-h-screen w-full;
+  }  
+  .items-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-6xl;
+  }
 }
