@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "./sidebar"
+import HeaderProvider from "@/components/layout/HeaderProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="app-container">
           <Sidebar />
           <div className="content-wrapper">
-            <main className="main-content">
+            <HeaderProvider>
               {children}
-            </main>
+            </HeaderProvider>
           </div>
         </div>
       </body>

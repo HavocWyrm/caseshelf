@@ -1,7 +1,6 @@
 import prisma from "@lib/db";
 
-import DashboardCard from "@/components/features/dashboard/DashboardCard";
-import PageHeader from "@/components/layout/PageHeader";
+import DashboardPageClient from "@component/features/dashboard/DashboardPageClientComponent";
 import { CollectionItemType } from "@/generated/prisma";
 
 export default async function Home() {
@@ -17,22 +16,5 @@ export default async function Home() {
     groupedByType[item.type]++;
   }
 
-  return (
-    <main className="h-full w-full max-w-full">
-
-      <PageHeader
-        pageTitle="CaseShelf"
-      />
-      <div className="grid grid-cols-3 gap-6 h-full">
-        {(Object.entries(groupedByType) as [CollectionItemType, number][]).map(
-          ([itemType, itemCount]) => (
-            <DashboardCard
-              key={itemType}
-              itemType={itemType}
-            />
-          ),
-        )}
-      </div>
-    </main>
-  );
+  return <DashboardPageClient groupedByType={groupedByType} />;
 }
