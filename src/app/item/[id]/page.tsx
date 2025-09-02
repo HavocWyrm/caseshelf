@@ -3,9 +3,9 @@ import prisma from "@lib/db";
 import EditItemModal from "@component/features/items/EditItemModal";
 
 interface ItemDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
@@ -26,8 +26,16 @@ export default async function ItemDetailPage({ params }: ItemDetailPageProps) {
           platform: true,
         },
       },
-      movieDetails: true,
-      showDetails: true,
+      movieDetails: {
+        include: {
+          format: true,
+        }
+      },
+      showDetails: {
+        include: {
+          format: true,
+        }
+      },
     },
   });
 

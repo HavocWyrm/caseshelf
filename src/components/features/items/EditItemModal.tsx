@@ -4,9 +4,13 @@ import { useState } from "react";
 import Modal from "react-modal";
 import ItemForm from "@/components/features/items/ItemForm";
 import { useRouter } from "next/navigation";
-import { CollectionItem } from "@/app/types/collectionItem";
+import type {
+  GameItem,
+  MovieItem,
+  ShowItem,
+} from "@/app/types/collectionItemQuery";
 
-type Item = CollectionItem;
+type Item = GameItem | MovieItem | ShowItem;
 
 export default function EditItemModal({ item }: { item: Item }) {
   const [showModal, setShowModal] = useState(false);
