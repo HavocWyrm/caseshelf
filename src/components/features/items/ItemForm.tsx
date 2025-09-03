@@ -5,7 +5,7 @@ import { Status } from "@/generated/prisma";
 
 type ItemFormProps = {
   onSubmitAction: (formData: FormData) => Promise<string | null>;
-  itemId: number;
+  itemId?: number;
   initialStatus?: string;
   initialName?: string;
   initialDescription?: string;
@@ -74,7 +74,9 @@ export default function ItemForm({
     if (selectedFile) {
       const formDataForImage = new FormData();
       formDataForImage.append("image", selectedFile);
-      formDataForImage.append("itemId", itemId.toString());
+      if (itemId !== undefined) {
+        formDataForImage.append("itemId", itemId.toString());
+      }
 
       const res = await fetch("/api/upload", {
         method: "POST",

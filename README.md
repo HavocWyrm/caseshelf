@@ -17,8 +17,16 @@ Caseshelf helps you cataloge and organise your physical media collection.
 Docker
 ```
 services:
+  caseshelf:
+    image: havocwyrm/caseshelf:latest
+    container_name: caseshelf
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - [your-bind-mount]:/app/data
 ```
-Non-Docker
+<!-- Non-Docker -->
 
 ## Roadmap
 - Library organisation

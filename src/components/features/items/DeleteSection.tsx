@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import DeleteButton from "@/components/ui/button/DeleteButton";
-import DeleteModal from "@/components/features/items/DeleteItemModal";
+import DeleteButton from "@component/ui/button/DeleteButton";
+import DeleteModal from "@component/features/items/DeleteItemModal";
 
 type Item = {
   id: number;

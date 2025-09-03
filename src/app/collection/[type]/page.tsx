@@ -1,5 +1,5 @@
 import prisma from "@lib/db";
-import CollectionPageClient from "@/components/features/collections/CollectionPageClientComponent";
+import CollectionPageClient from "@component/features/collections/CollectionPageClientComponent";
 import { gameItemInclude, GameItem, movieItemInclude, MovieItem, showItemInclude, ShowItem } from "@/app/types/collectionItemQuery";
 import { CollectionItemType } from "@/generated/prisma";
 
