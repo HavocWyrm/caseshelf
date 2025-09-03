@@ -46,9 +46,10 @@ RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 RUN ls -la /app/entrypoint.sh && head -5 /app/entrypoint.sh
 
-RUN mkdir -p /app/data && chown -R nextjs:nodejs /app && chown -R nextjs:nodejs /app/data
+RUN mkdir -p /app/data && chown -R nextjs:nodejs /app
 
-USER nextjs
+# Don't switch to nextjs user yet - let entrypoint handle permissions
+# USER nextjs
 
 EXPOSE 3000
 
