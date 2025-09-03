@@ -3,6 +3,12 @@ name: Docker Image CI
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (optional, e.g., v1.0.0)'
+        required: false
+        default: ''
 
 env:
   REGISTRY: docker.io
@@ -14,6 +20,8 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
+      attestations: write
 
     steps:
     - name: Checkout repository
@@ -41,6 +49,7 @@ jobs:
           type=semver,pattern={{version}}
           # Major.minor tag (e.g., v1.0.0 -> 1.0)
           type=semver,pattern={{major}}.{{minor}}
+          
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
