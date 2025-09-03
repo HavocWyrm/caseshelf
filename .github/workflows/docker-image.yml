@@ -49,8 +49,9 @@ jobs:
           type=semver,pattern={{version}}
           # Major.minor tag (e.g., v1.0.0 -> 1.0)
           type=semver,pattern={{major}}.{{minor}}
-          
+
     - name: Build and push Docker image
+      id: build-and-push
       uses: docker/build-push-action@v5
       with:
         context: .
@@ -67,5 +68,5 @@ jobs:
       uses: actions/attest-build-provenance@v1
       with:
         subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        subject-digest: ${{ steps.push.outputs.digest }}
+        subject-digest: ${{ steps.build-and-push.outputs.digest }}
         push-to-registry: true
