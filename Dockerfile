@@ -18,7 +18,7 @@ COPY public ./public
 RUN npx prisma generate
 
 ENV DATABASE_URL="file:./build-temp.db"
-RUN npx prisma migrate deploy || npx prisma db push
+RUN npx prisma db push --force-reset
 
 RUN npm run build -- --no-lint
 
@@ -42,7 +42,9 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/src/generated ./src/generated
 
 COPY ./docker/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
+
+RUN ls -la /app/entrypoint.sh && head -5 /app/entrypoint.sh
 
 RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
 
