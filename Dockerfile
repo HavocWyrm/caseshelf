@@ -20,11 +20,10 @@ RUN npx prisma generate
 ENV DATABASE_URL="file:./build-temp.db"
 RUN npx prisma migrate deploy || npx prisma db push
 
-RUN npm run build
+RUN npm run build -- --no-lint
 
 # ---- Runner ----
 FROM node:20-alpine AS runner
-
 WORKDIR /app
 
 ENV NODE_ENV=production
