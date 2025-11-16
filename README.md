@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center"> 
+	<br/>
+		<a href="https://opensource.org/license/gpl-3-0"><img src="https://img.shields.io/badge/License-GPL_v3-blue.svg?color=3F51B5&style=for-the-badge&label=License&logoColor=000000&labelColor=ececec" alt="License: GPLv3">
+	<br/>
+</p>
 
-## Getting Started
+## CaseShelf
+Caseshelf helps you cataloge and organise your physical media collection. 
 
-First, run the development server:
+## Features
+- Track collection items across multiple media types (games, movies and shows)
+- Find key metadata about items in your collection
+- Separate owned items from wanted ones, for easy reference when expanding your collection
+- Add notes for easy reference
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## How to Install
+Docker
 ```
+services:
+  caseshelf:
+    image: havocwyrm/caseshelf:latest
+    container_name: caseshelf
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+```
+<!-- Non-Docker -->
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Roadmap
+- Import/Export your collection via CSV
+- API scraping for metadata
+- Library organisation
+- Mobile UI Improvements
+- Multi user and OAuth 
+- More media types (books, manga, vinyl...)
+- Mobile apps
