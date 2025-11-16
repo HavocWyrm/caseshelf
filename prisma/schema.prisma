@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================
+// ENUMS
+// ==========================
+
+enum CollectionItemType {
+  GAME
+  MOVIE
+  SHOW
+}
+
+enum Status {
+  OWNED
+  WANTED
+}
+
+// ==========================
+// MODELS
+// ==========================
+
+model CollectionItem {
+  id          Int                @id @default(autoincrement())
+  status      Status             @default(OWNED)
+  name        String
+  description String?
+  coverArt    Image?
+  type        CollectionItemType
+  genres      Genre[]            @relation("CollectionItemGenres")
+  releaseYear Int?
+  franchiseId Int?
+  franchise   Franchise?         @relation(fields: [franchiseId], references: [id])
+  notes       String?
+  createdAt   DateTime           @default(now())
+  lastUpdated DateTime           @default(now())
+
+  gameDetails  GameDetails?
+  movieDetails MovieDetails?
+  showDetails  ShowDetails?
+}
+
+model GameDetails {
+  itemId    Int            @id
+  item      CollectionItem @relation(fields: [itemId], references: [id])
+  developer String?
+  publisher String?
+
+  platformId Int
+  platform   Platform @relation(fields: [platformId], references: [id])
+}
+
+model MovieDetails {
+  itemId         Int            @id
+  item           CollectionItem @relation(fields: [itemId], references: [id])
+  director       String?
+  writer         String?
+  runtimeMinutes Int?
+
+  formatId Int
+  format   Format @relation(fields: [formatId], references: [id])
+}
+
+model ShowDetails {
+  itemId      Int            @id
+  item        CollectionItem @relation(fields: [itemId], references: [id])
+  seasonCount Int?
+
+  formatId Int
+  format   Format @relation(fields: [formatId], references: [id])
+}
+
+model Genre {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  items CollectionItem[] @relation("CollectionItemGenres")
+}
+
+model Franchise {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  items CollectionItem[]
+}
+
+model Platform {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  logo String
+
+  games GameDetails[]
+}
+
+model Format {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  logo String
+
+  movies MovieDetails[]
+  shows  ShowDetails[]
+}
+
+model Image {
+  itemId     Int            @id
+  item       CollectionItem @relation(fields: [itemId], references: [id])
+  url        String
+  filename   String?
+  mimetype   String?
+  size       Int?
+  uploadedAt DateTime       @default(now())
+}
