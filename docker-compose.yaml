@@ -8,9 +8,9 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
-  server:
-    build:
-      context: .
+  caseshelf:
+    image: havocwyrm/caseshelf:latest
+    container_name: caseshelf
     environment:
       NODE_ENV: production
     ports:
@@ -48,4 +48,3 @@ services:
 # secrets:
 #   db-password:
 #     file: db/password.txt
-
