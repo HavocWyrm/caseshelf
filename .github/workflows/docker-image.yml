@@ -3,6 +3,9 @@ name: Docker Image CI
 on:
   release:
     types: [published]
+  push:
+    branches:
+      - dev
   workflow_dispatch:
     inputs:
       version:
@@ -27,6 +30,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Extract branch name
+      id: branch_name
+      shell: bash
+      run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+
+    - name: Determine build context
+      id: context
+      run: |
+        VERSION=${{ github.event.inputs.version || github.event.release.tag_name || '' }}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
@@ -43,12 +57,10 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
-          # Latest tag for all releases
-          type=raw,value=latest
-          # Version tag (e.g., v1.0.0 -> 1.0.0)
-          type=semver,pattern={{version}}
-          # Major.minor tag (e.g., v1.0.0 -> 1.0)
-          type=semver,pattern={{major}}.{{minor}}
+          ${{ steps.branch_name.outputs.branch == 'dev' && 'dev' || '' }}
+          ${{ steps.context.outputs.version != '' && 'latest' || '' }}
+          ${{ steps.context.outputs.version != '' && 'type=semver,pattern={{version}}' || '' }}
+          ${{ steps.context.outputs.version != '' && 'type=semver,pattern={{major}}.{{minor}}' || '' }}
 
     - name: Build and push Docker image
       id: build-and-push
