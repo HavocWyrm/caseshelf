@@ -60,7 +60,8 @@ COPY package.json .
 
 # Copy the production dependencies from the deps stage and also
 # the built application from the build stage into the image.
-COPY --from=build /usr/src/app/.next/standalone ./.next/standalone
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/public ./public
 
 # Expose the port that the application listens on.
 EXPOSE 3000
