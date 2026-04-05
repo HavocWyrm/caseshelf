@@ -21,8 +21,18 @@ A management and organisation tool to help you catalogue your physical media col
 - TODO: Add Docker setup
 
 ### Standalone
-- Clone the repository
-- Run `npm install`
+1. Clone the repository
+2. Run `npm install`
+3. Then
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
 ## Roadmap
 - [ ] Item management
