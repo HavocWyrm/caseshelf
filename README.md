@@ -9,33 +9,39 @@
 A management and organisation tool to help you catalogue your physical media collection.
 
 ## Features
-- TODO: Add completed features here
+- Add, edit and remove items in your physical media collection
 
 ## Tech stack
 - Next.js
 - PostgreSQL
 
 ## Installation
-
 ### Docker
-- TODO: Add Docker setup
+1. Clone the repo
+2. Copy `.env.example` to `.env` and fill in your values
+3. Run `docker compose up -d`
+4. Open `http://localhost:3000`
 
 ### Standalone
+Prerequisites: Node.js and PostgreSQL installed and running
+
 1. Clone the repository
-2. Run `npm install`
-3. Then
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. Copy `.env.example` to `.env.local` and fill in your values
+3. Run `npm install`
+4. Run `npm run dev`
+5. Open `http://localhost:3000`
+
+### Environment variables
+| Variable | Description |
+|----------|-------------|
+| `DB_HOST` | Database hostname (use `db` for Docker, `localhost` for standalone) |
+| `DB_PORT` | Database port (default: `5432`) |
+| `DB_NAME` | Database name |
+| `DB_USER` | Database user |
+| `DB_PASSWORD` | Database password |
 
 ## Roadmap
-- [ ] Item management
+- [x] ~~Item management~~
 - [ ] Import/export via CSV
 - [ ] Metadata scraping via external APIs
 - [ ] Library organisation tools
