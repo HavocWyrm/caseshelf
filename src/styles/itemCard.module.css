@@ -1,0 +1,67 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    aspect-ratio: 3 / 4;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: var(--color-brand);
+    cursor: default;
+    position: relative;
+    max-width: 10rem;
+    width: 100%;
+}
+
+.actions {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    display: flex;
+    gap: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.card:hover .actions {
+    opacity: 1;
+}
+
+.actionBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.25rem;
+    border: none;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    transition: background-color 0.15s;
+}
+
+.actionBtn:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.actionBtnDanger:hover {
+    background-color: #dc2626;
+}
+
+.detail {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.75rem;
+    color: white;
+    opacity: 0.8;
+}
+
+.title {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 0.875rem;
+    text-align: center;
+}

@@ -1,0 +1,46 @@
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 48rem;
+    margin: 0 auto;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.75rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-muted);
+}
+
+.icon {
+    color: var(--color-brand);
+    flex-shrink: 0;
+}
+
+.label {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--foreground);
+    flex: 1;
+}
+
+.count {
+    font-size: 0.95rem;
+    color: var(--foreground);
+    min-width: 8rem;
+    text-align: right;
+}
+
+.countEmpty {
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+.actions {
+    flex-shrink: 0;
+}

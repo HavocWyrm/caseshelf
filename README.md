@@ -41,7 +41,8 @@ Prerequisites: Node.js and PostgreSQL installed and running
 | `DB_PASSWORD` | Database password |
 
 ## Roadmap
-- [x] ~~Item management~~
+- [x] Item management
+- [x] UI Improvements
 - [ ] Import/export via CSV
 - [ ] Metadata scraping via external APIs
 - [ ] Library organisation tools

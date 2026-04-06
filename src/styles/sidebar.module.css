@@ -1,0 +1,77 @@
+.sidebar {
+    width: 5rem;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    z-index: 40;
+    background-color: var(--color-brand);
+    color: white;
+}
+
+.logo {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-muted);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.favicon {
+    width: 2rem;
+    height: 2rem;
+}
+
+.nav {
+    flex: 1;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.navList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: 1rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    color: white;
+    transition: background-color 0.15s;
+    text-decoration: none;
+}
+
+.navItem:hover {
+    background-color: var(--color-brand-hover);
+}
+
+.navItemActive {
+    background-color: var(--color-brand-hover);
+}
+
+.settingsLink {
+    padding: 1rem;
+    border-top: 1px solid var(--color-muted);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    transition: background-color 0.15s;
+}
+
+.settingsLink:hover {
+    background-color: var(--color-brand-hover);
+}

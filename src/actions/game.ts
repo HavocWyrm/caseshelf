@@ -1,6 +1,7 @@
 "use server";
 import pool from "@/lib/db";
 import { startup } from "@/lib/startup";
+import { GameItem } from "@/types/item";
 
 export async function createGame(
     title: string,
@@ -36,4 +37,29 @@ export async function updateGame(
         `UPDATE game SET platform_id = $1 WHERE collection_item_id = $2`,
         [platformId, id]
     );
+}
+
+export async function getGames(): Promise<GameItem[]> {
+    await startup();
+    const result = await pool.query(`
+    SELECT
+      collectionItem.id,
+      collectionItem.title,
+      collectionItem.type,
+      collectionItem.owned,
+      game.platform_id,
+      platform.name AS platform_name
+    FROM collection_item collectionItem
+    INNER JOIN game ON game.collection_item_id = collectionItem.id
+    INNER JOIN platform ON platform.id = game.platform_id
+    ORDER BY collectionItem.title
+  `);
+    return result.rows.map((row) => ({
+        id: row.id,
+        title: row.title,
+        type: "game" as const,
+        owned: row.owned,
+        platform_id: row.platform_id,
+        platform_name: row.platform_name,
+    }));
 }
