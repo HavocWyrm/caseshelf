@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ShowItem, Format } from "@/types/item";
 import { createShow, updateShow } from "@/actions/show";
 import { getFormats } from "@/actions/format";
@@ -9,10 +9,11 @@ import formStyles from "@/styles/form.module.css";
 type Props = {
     item?: ShowItem;
     onComplete: () => void;
+    onCreateAnother?: () => void;
     onClose: () => void;
 };
 
-export default function ShowFormModal({ item, onComplete, onClose }: Props) {
+export default function ShowFormModal({ item, onComplete, onCreateAnother, onClose }: Props) {
     const [formats, setFormats] = useState<Format[]>([]);
     const [formData, setFormData] = useState({
         title: item?.title ?? "",
@@ -20,6 +21,7 @@ export default function ShowFormModal({ item, onComplete, onClose }: Props) {
         formatId: item?.format_id ?? 0,
         seasonsOwned: item?.seasons_owned ?? 0,
     });
+    const continueRef = useRef(false);
 
     useEffect(() => {
         getFormats().then((data) => {
@@ -44,10 +46,17 @@ export default function ShowFormModal({ item, onComplete, onClose }: Props) {
         e.preventDefault();
         if (item) {
             await updateShow(item.id, formData.title, formData.owned, formData.formatId, formData.seasonsOwned);
+            onComplete();
         } else {
             await createShow(formData.title, formData.owned, formData.formatId, formData.seasonsOwned);
+            if (continueRef.current) {
+                setFormData((prev) => ({ ...prev, title: "" }));
+                continueRef.current = false;
+                onCreateAnother?.();
+            } else {
+                onComplete();
+            }
         }
-        onComplete();
     };
 
     return (
@@ -80,6 +89,15 @@ export default function ShowFormModal({ item, onComplete, onClose }: Props) {
                     </div>
                     <div className={styles.modalFooter}>
                         <button type="button" className="btn-outline" onClick={onClose}>Cancel</button>
+                        {onCreateAnother && (
+                            <button
+                                type="submit"
+                                className="btn"
+                                onClick={() => { continueRef.current = true; }}
+                            >
+                                Create & Add Another
+                            </button>
+                        )}
                         <button type="submit" className="btn">{item ? "Save" : "Create"}</button>
                     </div>
                 </form>

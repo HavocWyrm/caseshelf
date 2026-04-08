@@ -29,7 +29,7 @@ export default function ItemCard({ item }: Props) {
                     <Pencil size={14} />
                 </button>
                 <button
-                    className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                    className={'${styles.actionBtn} ${styles.actionBtnDanger}'}
                     onClick={() => openDeleteModal(item)}
                     title="Delete"
                 >
