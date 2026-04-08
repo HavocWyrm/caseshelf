@@ -47,14 +47,14 @@ export default function DashboardRow({ itemType, owned, total }: Props) {
                 <button
                     className="btn-outline"
                     onClick={() => openAddModal(itemType)}
-                    title={`Add ${labelMap[itemType]}`}
+                    title={'Add ${labelMap[itemType]}'}
                 >
                     <Plus size={16} />
                 </button>
                 <button
                     className="btn-outline"
                     onClick={() => router.push(routeMap[itemType])}
-                    title={`View ${labelMap[itemType]}`}
+                    title={'View ${labelMap[itemType]}'}
                 >
                     <ChevronRight size={16} />
                 </button>

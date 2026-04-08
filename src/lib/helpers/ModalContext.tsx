@@ -49,17 +49,33 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         router.refresh();
     }, [router]);
 
+    const handleSuccessAndContinue = useCallback(() => {
+        router.refresh();
+    }, [router]);
+
     return (
         <ModalContext.Provider value={{ openAddModal, openEditModal, openDeleteModal, closeModal }}>
             {children}
             {modalState?.type === "add" && modalState.itemType === "game" && (
-                <GameFormModal onComplete={handleSuccess} onClose={closeModal} />
+                <GameFormModal
+                    onComplete={handleSuccess}
+                    onCreateAnother={handleSuccessAndContinue}
+                    onClose={closeModal}
+                />
             )}
             {modalState?.type === "add" && modalState.itemType === "movie" && (
-                <MovieFormModal onComplete={handleSuccess} onClose={closeModal} />
+                <MovieFormModal
+                    onComplete={handleSuccess}
+                    onCreateAnother={handleSuccessAndContinue}
+                    onClose={closeModal}
+                />
             )}
             {modalState?.type === "add" && modalState.itemType === "show" && (
-                <ShowFormModal onComplete={handleSuccess} onClose={closeModal} />
+                <ShowFormModal
+                    onComplete={handleSuccess}
+                    onCreateAnother={handleSuccessAndContinue}
+                    onClose={closeModal}
+                />
             )}
             {modalState?.type === "edit" && modalState.item.type === "game" && (
                 <GameFormModal item={modalState.item} onComplete={handleSuccess} onClose={closeModal} />

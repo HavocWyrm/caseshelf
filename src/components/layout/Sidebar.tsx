@@ -5,7 +5,6 @@ import { LayoutDashboard, Gamepad2, Film, TvMinimal, Settings } from "lucide-rea
 import styles from "@/styles/sidebar.module.css";
 
 const menuItems = [
-    { name: "Dashboard", icon: <LayoutDashboard size={24} />, href: "/" },
     { name: "Games", icon: <Gamepad2 size={24} />, href: "/games" },
     { name: "Movies", icon: <Film size={24} />, href: "/movies" },
     { name: "Shows", icon: <TvMinimal size={24} />, href: "/shows" },
@@ -30,7 +29,7 @@ export default function Sidebar() {
                                 href={href}
                                 title={name}
                                 aria-label={name}
-                                className={`${styles.navItem} ${pathname === href ? styles.navItemActive : ""}`}
+                                className={'${styles.navItem} ${pathname === href ? styles.navItemActive : ""}'}
                             >
                                 {icon}
                             </Link>

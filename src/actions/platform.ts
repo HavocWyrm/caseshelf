@@ -4,9 +4,9 @@ import { startup } from "@/lib/startup";
 import { Platform } from "@/types/item";
 
 export async function getPlatforms(): Promise<Platform[]> {
-    await startup();
-    const result = await pool.query(`
-    SELECT id, name FROM platform ORDER BY name
+  await startup();
+  const result = await pool.query(`
+    SELECT id, name FROM platform WHERE enabled = true ORDER BY name
   `);
-    return result.rows;
+  return result.rows;
 }
