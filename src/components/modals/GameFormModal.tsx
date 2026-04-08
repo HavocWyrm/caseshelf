@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { GameItem, Platform } from "@/types/item";
 import { createGame, updateGame } from "@/actions/game";
 import { getPlatforms } from "@/actions/platform";
@@ -9,16 +9,18 @@ import formStyles from "@/styles/form.module.css";
 type Props = {
     item?: GameItem;
     onComplete: () => void;
+    onCreateAnother?: () => void;
     onClose: () => void;
 };
 
-export default function GameFormModal({ item, onComplete, onClose }: Props) {
+export default function GameFormModal({ item, onComplete, onCreateAnother, onClose }: Props) {
     const [platforms, setPlatforms] = useState<Platform[]>([]);
     const [formData, setFormData] = useState({
         title: item?.title ?? "",
         owned: item?.owned ?? false,
         platformId: item?.platform_id ?? 0,
     });
+    const continueRef = useRef(false);
 
     useEffect(() => {
         getPlatforms().then((data) => {
@@ -43,10 +45,17 @@ export default function GameFormModal({ item, onComplete, onClose }: Props) {
         e.preventDefault();
         if (item) {
             await updateGame(item.id, formData.title, formData.owned, formData.platformId);
+            onComplete();
         } else {
             await createGame(formData.title, formData.owned, formData.platformId);
+            if (continueRef.current) {
+                setFormData((prev) => ({ ...prev, title: "" }));
+                continueRef.current = false;
+                onCreateAnother?.();
+            } else {
+                onComplete();
+            }
         }
-        onComplete();
     };
 
     return (
@@ -75,6 +84,15 @@ export default function GameFormModal({ item, onComplete, onClose }: Props) {
                     </div>
                     <div className={styles.modalFooter}>
                         <button type="button" className="btn-outline" onClick={onClose}>Cancel</button>
+                        {onCreateAnother && (
+                            <button
+                                type="submit"
+                                className="btn"
+                                onClick={() => { continueRef.current = true; }}
+                            >
+                                Create & Add Another
+                            </button>
+                        )}
                         <button type="submit" className="btn">{item ? "Save" : "Create"}</button>
                     </div>
                 </form>
