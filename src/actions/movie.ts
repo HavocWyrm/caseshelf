@@ -2,31 +2,47 @@
 import pool from "@/lib/db";
 import { startup } from "@/lib/startup";
 import { MovieItem } from "@/types/item";
+import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/franchise";
+import { upsertItemUrl, removeItemUrl } from "@/actions/url";
 
 export async function createMovie(
     title: string,
     owned: boolean,
-    formatId: number
+    formatId: number,
+    franchiseName: string,
+    franchiseOrder: number | null,
+    siteUrl: string,
+    siteLabel: string
 ) {
     await startup();
-    const itemResult = await pool.query(
+    const result = await pool.query(
         `INSERT INTO collection_item (title, type, owned)
      VALUES ($1, 'movie', $2)
      RETURNING id`,
         [title, owned]
     );
+    const itemId = result.rows[0].id;
     await pool.query(
-        `INSERT INTO movie (collection_item_id, format_id)
-     VALUES ($1, $2)`,
-        [itemResult.rows[0].id, formatId]
+        `INSERT INTO movie (collection_item_id, format_id) VALUES ($1, $2)`,
+        [itemId, formatId]
     );
+    if (franchiseName.trim()) {
+        await upsertFranchiseLink(itemId, franchiseName.trim(), franchiseOrder);
+    }
+    if (siteUrl.trim()) {
+        await upsertItemUrl(itemId, siteUrl.trim(), siteLabel.trim() || null);
+    }
 }
 
 export async function updateMovie(
     id: number,
     title: string,
     owned: boolean,
-    formatId: number
+    formatId: number,
+    franchiseName: string,
+    franchiseOrder: number | null,
+    siteUrl: string,
+    siteLabel: string
 ) {
     await startup();
     await pool.query(
@@ -37,6 +53,16 @@ export async function updateMovie(
         `UPDATE movie SET format_id = $1 WHERE collection_item_id = $2`,
         [formatId, id]
     );
+    if (franchiseName.trim()) {
+        await upsertFranchiseLink(id, franchiseName.trim(), franchiseOrder);
+    } else {
+        await removeFranchiseLink(id);
+    }
+    if (siteUrl.trim()) {
+        await upsertItemUrl(id, siteUrl.trim(), siteLabel.trim() || null);
+    } else {
+        await removeItemUrl(id);
+    }
 }
 
 export async function getMovies(): Promise<MovieItem[]> {
@@ -48,10 +74,17 @@ export async function getMovies(): Promise<MovieItem[]> {
       collectionItem.type,
       collectionItem.owned,
       movie.format_id,
-      format.name AS format_name
+      format.name AS format_name,
+      franchise.name AS franchise_name,
+      franchiseItem.franchise_order,
+      item_url.site_label,
+      item_url.site_url
     FROM collection_item collectionItem
     INNER JOIN movie ON movie.collection_item_id = collectionItem.id
     INNER JOIN format ON format.id = movie.format_id
+    LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
+    LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
+    LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
     ORDER BY collectionItem.title
   `);
     return result.rows.map((row) => ({
@@ -61,5 +94,9 @@ export async function getMovies(): Promise<MovieItem[]> {
         owned: row.owned,
         format_id: row.format_id,
         format_name: row.format_name,
+        franchise_name: row.franchise_name ?? null,
+        franchise_order: row.franchise_order ?? null,
+        site_label: row.site_label ?? null,
+        site_url: row.site_url ?? null,
     }));
 }

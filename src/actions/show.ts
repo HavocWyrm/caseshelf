@@ -2,25 +2,37 @@
 import pool from "@/lib/db";
 import { startup } from "@/lib/startup";
 import { ShowItem } from "@/types/item";
+import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/franchise";
+import { upsertItemUrl, removeItemUrl } from "@/actions/url";
 
 export async function createShow(
   title: string,
   owned: boolean,
   formatId: number,
-  seasonsOwned: number
+  seasonsOwned: number,
+  franchiseName: string,
+  franchiseOrder: number | null,
+  siteUrl: string,
+  siteLabel: string
 ) {
   await startup();
-  const itemResult = await pool.query(
+  const result = await pool.query(
     `INSERT INTO collection_item (title, type, owned)
      VALUES ($1, 'show', $2)
      RETURNING id`,
     [title, owned]
   );
+  const itemId = result.rows[0].id;
   await pool.query(
-    `INSERT INTO show (collection_item_id, format_id, seasons_owned)
-     VALUES ($1, $2, $3)`,
-    [itemResult.rows[0].id, formatId, seasonsOwned]
+    `INSERT INTO show (collection_item_id, format_id, seasons_owned) VALUES ($1, $2, $3)`,
+    [itemId, formatId, seasonsOwned]
   );
+  if (franchiseName.trim()) {
+    await upsertFranchiseLink(itemId, franchiseName.trim(), franchiseOrder);
+  }
+  if (siteUrl.trim()) {
+    await upsertItemUrl(itemId, siteUrl.trim(), siteLabel.trim() || null);
+  }
 }
 
 export async function updateShow(
@@ -28,7 +40,11 @@ export async function updateShow(
   title: string,
   owned: boolean,
   formatId: number,
-  seasonsOwned: number
+  seasonsOwned: number,
+  franchiseName: string,
+  franchiseOrder: number | null,
+  siteUrl: string,
+  siteLabel: string
 ) {
   await startup();
   await pool.query(
@@ -39,6 +55,16 @@ export async function updateShow(
     `UPDATE show SET format_id = $1, seasons_owned = $2 WHERE collection_item_id = $3`,
     [formatId, seasonsOwned, id]
   );
+  if (franchiseName.trim()) {
+    await upsertFranchiseLink(id, franchiseName.trim(), franchiseOrder);
+  } else {
+    await removeFranchiseLink(id);
+  }
+  if (siteUrl.trim()) {
+    await upsertItemUrl(id, siteUrl.trim(), siteLabel.trim() || null);
+  } else {
+    await removeItemUrl(id);
+  }
 }
 
 export async function getShows(): Promise<ShowItem[]> {
@@ -51,10 +77,17 @@ export async function getShows(): Promise<ShowItem[]> {
       collectionItem.owned,
       show.format_id,
       format.name AS format_name,
-      show.seasons_owned
+      show.seasons_owned,
+      franchise.name AS franchise_name,
+      franchiseItem.franchise_order,
+      item_url.site_label,
+      item_url.site_url
     FROM collection_item collectionItem
     INNER JOIN show ON show.collection_item_id = collectionItem.id
     INNER JOIN format ON format.id = show.format_id
+    LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
+    LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
+    LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
     ORDER BY collectionItem.title
   `);
   return result.rows.map((row) => ({
@@ -65,5 +98,9 @@ export async function getShows(): Promise<ShowItem[]> {
     format_id: row.format_id,
     format_name: row.format_name,
     seasons_owned: row.seasons_owned,
+    franchise_name: row.franchise_name ?? null,
+    franchise_order: row.franchise_order ?? null,
+    site_label: row.site_label ?? null,
+    site_url: row.site_url ?? null,
   }));
 }
