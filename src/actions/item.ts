@@ -17,7 +17,11 @@ export async function getItems(): Promise<CollectionItem[]> {
       movieFormat.name AS movie_format_name,
       show.format_id AS show_format_id,
       showFormat.name AS show_format_name,
-      show.seasons_owned
+      show.seasons_owned,
+      franchise.name AS franchise_name,
+      franchiseItem.franchise_order,
+      item_url.site_label,
+      item_url.site_url
     FROM collection_item collectionItem
     LEFT JOIN game ON game.collection_item_id = collectionItem.id
     LEFT JOIN platform ON platform.id = game.platform_id
@@ -25,6 +29,9 @@ export async function getItems(): Promise<CollectionItem[]> {
     LEFT JOIN format movieFormat ON movieFormat.id = movie.format_id
     LEFT JOIN show ON show.collection_item_id = collectionItem.id
     LEFT JOIN format showFormat ON showFormat.id = show.format_id
+    LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
+    LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
+    LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
     ORDER BY collectionItem.id
   `);
 
@@ -37,6 +44,10 @@ export async function getItems(): Promise<CollectionItem[]> {
                 owned: row.owned,
                 platform_id: row.platform_id,
                 platform_name: row.platform_name,
+                franchise_name: row.franchise_name ?? null,
+                franchise_order: row.franchise_order ?? null,
+                site_label: row.site_label ?? null,
+                site_url: row.site_url ?? null,
             };
         } else if (row.type === "movie") {
             return {
@@ -46,6 +57,10 @@ export async function getItems(): Promise<CollectionItem[]> {
                 owned: row.owned,
                 format_id: row.movie_format_id,
                 format_name: row.movie_format_name,
+                franchise_name: row.franchise_name ?? null,
+                franchise_order: row.franchise_order ?? null,
+                site_label: row.site_label ?? null,
+                site_url: row.site_url ?? null,
             };
         } else {
             return {
@@ -56,6 +71,10 @@ export async function getItems(): Promise<CollectionItem[]> {
                 format_id: row.show_format_id,
                 format_name: row.show_format_name,
                 seasons_owned: row.seasons_owned,
+                franchise_name: row.franchise_name ?? null,
+                franchise_order: row.franchise_order ?? null,
+                site_label: row.site_label ?? null,
+                site_url: row.site_url ?? null,
             };
         }
     });

@@ -1,0 +1,12 @@
+.bar {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    flex-wrap: wrap;
+}
+
+.bar select,
+.bar input {
+    flex: 1;
+    min-width: 8rem;
+}

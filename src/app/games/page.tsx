@@ -1,27 +1,16 @@
 import { getGames } from "@/actions/game";
-import ItemCard from "@/components/collection/ItemCard";
-import AddItemButton from "@/components/collection/AddItemButton";
-import styles from "@/styles/collection.module.css";
+import { getPlatforms } from "@/actions/platform";
+import { getFranchisesForType } from "@/actions/franchise";
+import GamesClient from "@/components/collection/GamesClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function GamesPage() {
-    const games = await getGames();
+    const [games, platforms, franchises] = await Promise.all([
+        getGames(),
+        getPlatforms(),
+        getFranchisesForType("game"),
+    ]);
 
-    return (
-        <div className={styles.page}>
-            <div className={styles.pageHeader}>
-                <AddItemButton itemType="game" />
-            </div>
-            {games.length === 0 ? (
-                <p className="text-muted">No games yet.</p>
-            ) : (
-                <div className="items-grid">
-                    {games.map((item) => (
-                        <ItemCard key={item.id} item={item} />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+    return <GamesClient games={games} platforms={platforms} franchises={franchises} />;
 }

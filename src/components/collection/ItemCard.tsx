@@ -1,14 +1,23 @@
 "use client";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, ExternalLink } from "lucide-react";
+import Image from "next/image";
 import { useModal } from "@/lib/helpers/ModalContext";
 import { CollectionItem } from "@/types/item";
+import { platformLogoMap, formatLogoMap } from "@/lib/helpers/logoMaps";
 import styles from "@/styles/itemCard.module.css";
 
 type Props = {
     item: CollectionItem;
 };
 
-function getDetail(item: CollectionItem): string {
+function getLogoUrl(item: CollectionItem): string | null {
+    if (item.type === "game") return platformLogoMap[item.platform_name] ?? null;
+    if (item.type === "movie") return formatLogoMap[item.format_name] ?? null;
+    if (item.type === "show") return formatLogoMap[item.format_name] ?? null;
+    return null;
+}
+
+function getDetailText(item: CollectionItem): string {
     if (item.type === "game") return item.platform_name;
     if (item.type === "movie") return item.format_name;
     if (item.type === "show") return item.format_name;
@@ -17,6 +26,7 @@ function getDetail(item: CollectionItem): string {
 
 export default function ItemCard({ item }: Props) {
     const { openEditModal, openDeleteModal } = useModal();
+    const logoUrl = getLogoUrl(item);
 
     return (
         <div className={styles.card}>
@@ -29,14 +39,38 @@ export default function ItemCard({ item }: Props) {
                     <Pencil size={14} />
                 </button>
                 <button
-                    className={'${styles.actionBtn} ${styles.actionBtnDanger}'}
+                    className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
                     onClick={() => openDeleteModal(item)}
                     title="Delete"
                 >
                     <Trash2 size={14} />
                 </button>
             </div>
-            <div className={styles.detail}>{getDetail(item)}</div>
+            {item.site_url && (
+                <a
+                    href={item.site_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.linkButton}
+                    title={item.site_label ?? "View listing"}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <ExternalLink size={14} />
+                </a>
+            )}
+            <div className={styles.detail}>
+                {logoUrl ? (
+                    <Image
+                        src={logoUrl}
+                        alt={getDetailText(item)}
+                        width={32}
+                        height={32}
+                        className={styles.logo}
+                    />
+                ) : (
+                    <span>{getDetailText(item)}</span>
+                )}
+            </div>
             <div className={styles.title}>{item.title}</div>
         </div>
     );
