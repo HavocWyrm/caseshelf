@@ -3,6 +3,7 @@ import pool from "@/lib/db";
 import { startup } from "@/lib/startup";
 import { GameItem } from "@/types/item";
 import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/franchise";
+import { upsertItemUrl, removeItemUrl } from "@/actions/url";
 
 export async function createGame(
     title: string,
@@ -10,8 +11,8 @@ export async function createGame(
     platformId: number,
     franchiseName: string,
     franchiseOrder: number | null,
-    site_label: string | null,
-    site_url: string | null
+    siteUrl: string,
+    siteLabel: string
 ) {
     await startup();
     const result = await pool.query(
@@ -28,6 +29,9 @@ export async function createGame(
     if (franchiseName.trim()) {
         await upsertFranchiseLink(itemId, franchiseName.trim(), franchiseOrder);
     }
+    if (siteUrl.trim()) {
+        await upsertItemUrl(itemId, siteUrl.trim(), siteLabel.trim() || null);
+    }
 }
 
 export async function updateGame(
@@ -37,8 +41,8 @@ export async function updateGame(
     platformId: number,
     franchiseName: string,
     franchiseOrder: number | null,
-    site_label: string | null,
-    site_url: string | null
+    siteUrl: string,
+    siteLabel: string
 ) {
     await startup();
     await pool.query(
@@ -53,6 +57,11 @@ export async function updateGame(
         await upsertFranchiseLink(id, franchiseName.trim(), franchiseOrder);
     } else {
         await removeFranchiseLink(id);
+    }
+    if (siteUrl.trim()) {
+        await upsertItemUrl(id, siteUrl.trim(), siteLabel.trim() || null);
+    } else {
+        await removeItemUrl(id);
     }
 }
 

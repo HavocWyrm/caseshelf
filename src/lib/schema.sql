@@ -61,8 +61,8 @@ CREATE TABLE franchise_item (
 
 CREATE TABLE item_url (
   id                 BIGSERIAL,
-  collection_item_id BIGINT NOT NULL REFERENCES collection_item(id) ON DELETE CASCADE,
-  site_url                TEXT NOT NULL,
-  site_label              TEXT,
+  collection_item_id BIGINT NOT NULL REFERENCES collection_item(id) ON DELETE CASCADE UNIQUE,
+  site_url           TEXT NOT NULL,
+  site_label         TEXT,
   PRIMARY KEY (id)
 );

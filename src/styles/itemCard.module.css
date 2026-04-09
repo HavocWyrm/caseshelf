@@ -65,3 +65,30 @@
     font-size: 0.875rem;
     text-align: center;
 }
+
+.linkButton {
+    position: absolute;
+    bottom: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.25rem;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.15s;
+}
+
+.linkButton:hover {
+    background-color: var(--color-brand);
+}
+
+.logo {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}

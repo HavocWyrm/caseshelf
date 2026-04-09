@@ -3,6 +3,7 @@ import pool from "@/lib/db";
 import { startup } from "@/lib/startup";
 import { MovieItem } from "@/types/item";
 import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/franchise";
+import { upsertItemUrl, removeItemUrl } from "@/actions/url";
 
 export async function createMovie(
     title: string,
@@ -10,8 +11,8 @@ export async function createMovie(
     formatId: number,
     franchiseName: string,
     franchiseOrder: number | null,
-    site_label: string | null,
-    site_url: string | null
+    siteUrl: string,
+    siteLabel: string
 ) {
     await startup();
     const result = await pool.query(
@@ -28,6 +29,9 @@ export async function createMovie(
     if (franchiseName.trim()) {
         await upsertFranchiseLink(itemId, franchiseName.trim(), franchiseOrder);
     }
+    if (siteUrl.trim()) {
+        await upsertItemUrl(itemId, siteUrl.trim(), siteLabel.trim() || null);
+    }
 }
 
 export async function updateMovie(
@@ -37,8 +41,8 @@ export async function updateMovie(
     formatId: number,
     franchiseName: string,
     franchiseOrder: number | null,
-    site_label: string | null,
-    site_url: string | null
+    siteUrl: string,
+    siteLabel: string
 ) {
     await startup();
     await pool.query(
@@ -53,6 +57,11 @@ export async function updateMovie(
         await upsertFranchiseLink(id, franchiseName.trim(), franchiseOrder);
     } else {
         await removeFranchiseLink(id);
+    }
+    if (siteUrl.trim()) {
+        await upsertItemUrl(id, siteUrl.trim(), siteLabel.trim() || null);
+    } else {
+        await removeItemUrl(id);
     }
 }
 
