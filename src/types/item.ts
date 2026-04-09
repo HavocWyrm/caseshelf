@@ -5,6 +5,10 @@ export type BaseItem = {
   title: string;
   type: ItemType;
   owned: boolean;
+  franchise_name: string | null;
+  franchise_order: number | null;
+  site_label: string | null;
+  site_url: string | null;
 };
 
 export type GameItem = BaseItem & {

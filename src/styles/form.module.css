@@ -14,3 +14,42 @@
   outline: none;
   border-color: var(--color-brand);
 }
+
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-muted);
+  border-radius: 0.375rem;
+  margin-top: 0.25rem;
+  list-style: none;
+  padding: 0.25rem 0;
+  z-index: 100;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.suggestion {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--foreground);
+}
+
+.suggestion:hover {
+  background-color: var(--color-bg);
+}
+
+.inlineFields {
+  display: grid;
+  grid-template-columns: 3fr 7fr;
+  gap: 1rem;
+  align-items: end;
+}

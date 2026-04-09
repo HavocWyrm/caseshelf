@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { ShowItem, Format } from "@/types/item";
 import { createShow, updateShow } from "@/actions/show";
 import { getFormats } from "@/actions/format";
+import FranchiseInput from "@/components/ui/FranchiseInput";
 import styles from "@/styles/modal.module.css";
 import formStyles from "@/styles/form.module.css";
 
@@ -19,7 +20,11 @@ export default function ShowFormModal({ item, onComplete, onCreateAnother, onClo
         title: item?.title ?? "",
         owned: item?.owned ?? false,
         formatId: item?.format_id ?? 0,
+        franchiseName: item?.franchise_name ?? "",
+        franchiseOrder: item?.franchise_order ?? "",
         seasonsOwned: item?.seasons_owned ?? 0,
+        site_label: item?.site_label ?? "",
+        site_url: item?.site_url ?? "",
     });
     const continueRef = useRef(false);
 
@@ -42,13 +47,14 @@ export default function ShowFormModal({ item, onComplete, onCreateAnother, onClo
         }));
     };
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
+        const franchiseOrder = formData.franchiseOrder === "" ? null : Number(formData.franchiseOrder);
         if (item) {
-            await updateShow(item.id, formData.title, formData.owned, formData.formatId, formData.seasonsOwned);
+            await updateShow(item.id, formData.title, formData.owned, formData.formatId, formData.seasonsOwned, formData.franchiseName, franchiseOrder, formData.site_url, formData.site_label);
             onComplete();
         } else {
-            await createShow(formData.title, formData.owned, formData.formatId, formData.seasonsOwned);
+            await createShow(formData.title, formData.owned, formData.formatId, formData.seasonsOwned, formData.franchiseName, franchiseOrder, formData.site_url, formData.site_label);
             if (continueRef.current) {
                 setFormData((prev) => ({ ...prev, title: "" }));
                 continueRef.current = false;
@@ -79,10 +85,55 @@ export default function ShowFormModal({ item, onComplete, onCreateAnother, onClo
                             ))}
                         </select>
                     </div>
+                    <div className={formStyles.field}>
+                        <label className={formStyles.label} htmlFor="franchiseName">Franchise</label>
+                        <FranchiseInput
+                            value={formData.franchiseName}
+                            onChange={(value) => setFormData((prev) => ({ ...prev, franchiseName: value }))}
+                        />
+                    </div>
+                    <div className={formStyles.field}>
+                        <label className={formStyles.label} htmlFor="franchiseOrder">Franchise №</label>
+                        <input
+                            className={formStyles.input}
+                            type="number"
+                            id="franchiseOrder"
+                            name="franchiseOrder"
+                            min={1}
+                            value={formData.franchiseOrder}
+                            onChange={handleChange}
+                        />
+                    </div>
                     <div className={formStyles.checkboxField}>
                         <input type="checkbox" id="owned" name="owned" checked={formData.owned} onChange={handleChange} />
                         <label className={formStyles.checkboxLabel} htmlFor="owned">Owned</label>
                     </div>
+                    {!formData.owned && (
+                        <div className={formStyles.inlineFields}>
+                            <div className={formStyles.field}>
+                                <label className={formStyles.label} htmlFor="site_label">Site</label>
+                                <input
+                                    className={formStyles.input}
+                                    type="text"
+                                    id="site_label"
+                                    name="site_label"
+                                    value={formData.site_label}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div className={formStyles.field}>
+                                <label className={formStyles.label} htmlFor="site_url">URL</label>
+                                <input
+                                    className={formStyles.input}
+                                    type="url"
+                                    id="site_url"
+                                    name="site_url"
+                                    value={formData.site_url}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                    )}
                     <div className={formStyles.field}>
                         <label className={formStyles.label} htmlFor="seasonsOwned">Seasons Owned</label>
                         <input className={formStyles.input} type="number" id="seasonsOwned" name="seasonsOwned" min={0} value={formData.seasonsOwned} onChange={handleChange} />
