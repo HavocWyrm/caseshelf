@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { ShowItem, Format } from "@/types/item";
-import { createShow, updateShow } from "@/actions/show";
-import { getFormats } from "@/actions/format";
+import { createShow, updateShow } from "@/actions/pages/show";
+import { getFormats } from "@/actions/attributes/format";
 import FranchiseInput from "@/components/ui/FranchiseInput";
 import styles from "@/styles/modal.module.css";
 import formStyles from "@/styles/form.module.css";

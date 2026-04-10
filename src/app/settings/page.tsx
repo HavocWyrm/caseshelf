@@ -1,4 +1,4 @@
-import { getPlatformsWithStatus, getFormatsWithStatus, togglePlatform, toggleFormat } from "@/actions/settings";
+import { getPlatformsWithStatus, getFormatsWithStatus, togglePlatform, toggleFormat } from "@/actions/pages/settings";
 import ToggleList from "@/components/settings/ToggleList";
 import styles from "@/styles/settings.module.css";
 

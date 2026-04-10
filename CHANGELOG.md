@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Wanted page to allow for quick view of desired items
-- Item detail page
 - Cover art uploads for ItemCards
 - Add a sorting settings page
 
@@ -23,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create and Add Another button now clears the correct fields
 
 ## [0.2.1] - TBD
+
+### Added
+- Item detail page
 
 ## [0.2.0] - 2026-04-10
 
