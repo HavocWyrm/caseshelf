@@ -18,13 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sorting options now available on item type pages
 
 ### Fixed
-- Franchise dropdown behaviour now makes sense (only fires when editing and field is active, doesn't re-fire when completed)
 - Create and Add Another button now clears the correct fields
 
-## [0.2.1] - TBD
+## [0.2.1] - 2026-04-11
 
 ### Added
 - Item detail page
+
+### Fixed
+- Franchise dropdown behaviour now makes sense (only fires when editing and field is active, doesn't re-fire when completed)
 
 ## [0.2.0] - 2026-04-10
 
