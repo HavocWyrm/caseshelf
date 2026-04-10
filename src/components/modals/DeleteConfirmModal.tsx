@@ -1,5 +1,5 @@
 "use client";
-import { deleteItem } from "@/actions/item";
+import { deleteItem } from "@/actions/pages/item";
 import { CollectionItem } from "@/types/item";
 import styles from "@/styles/modal.module.css";
 

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { searchFranchises } from "@/actions/franchise";
+import { searchFranchises } from "@/actions/attributes/franchise";
 import formStyles from "@/styles/form.module.css";
 
 type Props = {
@@ -11,11 +11,13 @@ type Props = {
 export default function FranchiseInput({ value, onChange }: Props) {
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
     const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
-        if (!value.trim()) {
+        if (!isFocused || !value.trim()) {
             setSuggestions([]);
+            setShowSuggestions(false);
             return;
         }
         if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -27,7 +29,7 @@ export default function FranchiseInput({ value, onChange }: Props) {
         return () => {
             if (debounceRef.current) clearTimeout(debounceRef.current);
         };
-    }, [value]);
+    }, [value, isFocused]);
 
     const handleSelect = (name: string) => {
         onChange(name);
@@ -41,7 +43,11 @@ export default function FranchiseInput({ value, onChange }: Props) {
                 type="text"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => {
+                    setIsFocused(false);
+                    setTimeout(() => setShowSuggestions(false), 150);
+                }}
                 placeholder="e.g. Star Wars"
                 autoComplete="off"
             />

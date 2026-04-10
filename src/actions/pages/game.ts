@@ -1,14 +1,14 @@
 "use server";
 import pool from "@/lib/db";
 import { startup } from "@/lib/startup";
-import { MovieItem } from "@/types/item";
-import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/franchise";
-import { upsertItemUrl, removeItemUrl } from "@/actions/url";
+import { GameItem } from "@/types/item";
+import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/attributes/franchise";
+import { upsertItemUrl, removeItemUrl } from "@/actions/attributes/url";
 
-export async function createMovie(
+export async function createGame(
     title: string,
     owned: boolean,
-    formatId: number,
+    platformId: number,
     franchiseName: string,
     franchiseOrder: number | null,
     siteUrl: string,
@@ -17,14 +17,14 @@ export async function createMovie(
     await startup();
     const result = await pool.query(
         `INSERT INTO collection_item (title, type, owned)
-     VALUES ($1, 'movie', $2)
+     VALUES ($1, 'game', $2)
      RETURNING id`,
         [title, owned]
     );
     const itemId = result.rows[0].id;
     await pool.query(
-        `INSERT INTO movie (collection_item_id, format_id) VALUES ($1, $2)`,
-        [itemId, formatId]
+        `INSERT INTO game (collection_item_id, platform_id) VALUES ($1, $2)`,
+        [itemId, platformId]
     );
     if (franchiseName.trim()) {
         await upsertFranchiseLink(itemId, franchiseName.trim(), franchiseOrder);
@@ -34,11 +34,11 @@ export async function createMovie(
     }
 }
 
-export async function updateMovie(
+export async function updateGame(
     id: number,
     title: string,
     owned: boolean,
-    formatId: number,
+    platformId: number,
     franchiseName: string,
     franchiseOrder: number | null,
     siteUrl: string,
@@ -50,8 +50,8 @@ export async function updateMovie(
         [title, owned, id]
     );
     await pool.query(
-        `UPDATE movie SET format_id = $1 WHERE collection_item_id = $2`,
-        [formatId, id]
+        `UPDATE game SET platform_id = $1 WHERE collection_item_id = $2`,
+        [platformId, id]
     );
     if (franchiseName.trim()) {
         await upsertFranchiseLink(id, franchiseName.trim(), franchiseOrder);
@@ -65,7 +65,7 @@ export async function updateMovie(
     }
 }
 
-export async function getMovies(): Promise<MovieItem[]> {
+export async function getGames(): Promise<GameItem[]> {
     await startup();
     const result = await pool.query(`
     SELECT
@@ -73,15 +73,15 @@ export async function getMovies(): Promise<MovieItem[]> {
       collectionItem.title,
       collectionItem.type,
       collectionItem.owned,
-      movie.format_id,
-      format.name AS format_name,
+      game.platform_id,
+      platform.name AS platform_name,
       franchise.name AS franchise_name,
       franchiseItem.franchise_order,
       item_url.site_label,
       item_url.site_url
     FROM collection_item collectionItem
-    INNER JOIN movie ON movie.collection_item_id = collectionItem.id
-    INNER JOIN format ON format.id = movie.format_id
+    INNER JOIN game ON game.collection_item_id = collectionItem.id
+    INNER JOIN platform ON platform.id = game.platform_id
     LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
     LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
     LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
@@ -90,10 +90,10 @@ export async function getMovies(): Promise<MovieItem[]> {
     return result.rows.map((row) => ({
         id: row.id,
         title: row.title,
-        type: "movie" as const,
+        type: "game" as const,
         owned: row.owned,
-        format_id: row.format_id,
-        format_name: row.format_name,
+        platform_id: row.platform_id,
+        platform_name: row.platform_name,
         franchise_name: row.franchise_name ?? null,
         franchise_order: row.franchise_order ?? null,
         site_label: row.site_label ?? null,

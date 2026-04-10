@@ -2,8 +2,8 @@
 import pool from "@/lib/db";
 import { startup } from "@/lib/startup";
 import { ShowItem } from "@/types/item";
-import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/franchise";
-import { upsertItemUrl, removeItemUrl } from "@/actions/url";
+import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/attributes/franchise";
+import { upsertItemUrl, removeItemUrl } from "@/actions/attributes/url";
 
 export async function createShow(
   title: string,
