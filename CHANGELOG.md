@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Wanted page to allow for quick view of desired items
 - Cover art uploads for ItemCards
 - Add a sorting settings page
 
@@ -20,10 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Create and Add Another button now clears the correct fields
 
-## [0.2.1] - 2026-04-11
+## [0.2.1] - 2026-04-14
 
 ### Added
 - Item detail page
+- Wanted page to allow for quick view of desired items
+
+### Changed
+- Swapped sidebar to a new layout now there are more pages
 
 ### Fixed
 - Franchise dropdown behaviour now makes sense (only fires when editing and field is active, doesn't re-fire when completed)
