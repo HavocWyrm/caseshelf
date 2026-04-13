@@ -1,6 +1,7 @@
 "use client";
-import { Pencil, Trash2, ExternalLink } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useModal } from "@/lib/helpers/ModalContext";
 import { CollectionItem } from "@/types/item";
 import { platformLogoMap, formatLogoMap } from "@/lib/helpers/logoMaps";
@@ -24,40 +25,30 @@ function getDetailText(item: CollectionItem): string {
     return "";
 }
 
+function getDetailRoute(item: CollectionItem): string {
+    if (item.type === "game") return `/games/${item.id}`;
+    if (item.type === "movie") return `/movies/${item.id}`;
+    if (item.type === "show") return `/shows/${item.id}`;
+    return "/";
+}
+
 export default function ItemCard({ item }: Props) {
-    const { openEditModal, openDeleteModal } = useModal();
+    const { openDeleteModal } = useModal();
+    const router = useRouter();
     const logoUrl = getLogoUrl(item);
 
     return (
-        <div className={styles.card}>
+        <div className={styles.card} onClick={() => router.push(getDetailRoute(item))}>
             <div className={styles.actions}>
                 <button
-                    className={styles.actionBtn}
-                    onClick={() => openEditModal(item)}
-                    title="Edit"
-                >
-                    <Pencil size={14} />
-                </button>
-                <button
                     className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                    onClick={() => openDeleteModal(item)}
+                    onClick={(e) => { e.stopPropagation(); openDeleteModal(item); }}
                     title="Delete"
                 >
                     <Trash2 size={14} />
                 </button>
             </div>
-            {item.site_url && (
-                <a
-                    href={item.site_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={styles.linkButton}
-                    title={item.site_label ?? "View listing"}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <ExternalLink size={14} />
-                </a>
-            )}
+
             <div className={styles.detail}>
                 {logoUrl ? (
                     <Image
@@ -71,6 +62,7 @@ export default function ItemCard({ item }: Props) {
                     <span>{getDetailText(item)}</span>
                 )}
             </div>
+
             <div className={styles.title}>{item.title}</div>
         </div>
     );

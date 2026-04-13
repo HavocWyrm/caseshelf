@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { GameItem, Platform } from "@/types/item";
-import { createGame, updateGame } from "@/actions/game";
-import { getPlatforms } from "@/actions/platform";
+import { createGame, updateGame } from "@/actions/pages/game";
+import { getPlatforms } from "@/actions/attributes/platform";
 import FranchiseInput from "@/components/ui/FranchiseInput";
 import styles from "@/styles/modal.module.css";
 import formStyles from "@/styles/form.module.css";

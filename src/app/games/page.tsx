@@ -1,6 +1,6 @@
-import { getGames } from "@/actions/game";
-import { getPlatforms } from "@/actions/platform";
-import { getFranchisesForType } from "@/actions/franchise";
+import { getGames } from "@/actions/pages/game";
+import { getPlatforms } from "@/actions/attributes/platform";
+import { getFranchisesForType } from "@/actions/attributes/franchise";
 import GamesClient from "@/components/collection/GamesClient";
 
 export const dynamic = "force-dynamic";

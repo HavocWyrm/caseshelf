@@ -1,6 +1,6 @@
-import { getMovies } from "@/actions/movie";
-import { getFormats } from "@/actions/format";
-import { getFranchisesForType } from "@/actions/franchise";
+import { getMovies } from "@/actions/pages/movie";
+import { getFormats } from "@/actions/attributes/format";
+import { getFranchisesForType } from "@/actions/attributes/franchise";
 import MoviesClient from "@/components/collection/MoviesClient";
 
 export const dynamic = "force-dynamic";

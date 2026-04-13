@@ -1,6 +1,6 @@
-import { getShows } from "@/actions/show";
-import { getFormats } from "@/actions/format";
-import { getFranchisesForType } from "@/actions/franchise";
+import { getShows } from "@/actions/pages/show";
+import { getFormats } from "@/actions/attributes/format";
+import { getFranchisesForType } from "@/actions/attributes/franchise";
 import ShowsClient from "@/components/collection/ShowsClient";
 
 export const dynamic = "force-dynamic";

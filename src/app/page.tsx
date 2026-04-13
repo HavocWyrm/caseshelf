@@ -1,4 +1,4 @@
-import { getDashboardCounts } from "@/actions/item";
+import { getDashboardCounts } from "@/actions/pages/item";
 import DashboardRow from "@/components/dashboard/DashboardRow";
 import styles from "@/styles/dashboard.module.css";
 

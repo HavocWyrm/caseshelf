@@ -9,7 +9,7 @@ export async function searchFranchises(query: string): Promise<string[]> {
      WHERE name ILIKE $1
      ORDER BY name
      LIMIT 10`,
-        [`${query}%`]
+        [`%${query}%`]
     );
     return result.rows.map((row) => row.name);
 }

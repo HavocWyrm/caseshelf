@@ -1,8 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { MovieItem, Format } from "@/types/item";
-import { createMovie, updateMovie } from "@/actions/movie";
-import { getFormats } from "@/actions/format";
+import { createMovie, updateMovie } from "@/actions/pages/movie";
+import { getFormats } from "@/actions/attributes/format";
 import FranchiseInput from "@/components/ui/FranchiseInput";
 import styles from "@/styles/modal.module.css";
 import formStyles from "@/styles/form.module.css";
