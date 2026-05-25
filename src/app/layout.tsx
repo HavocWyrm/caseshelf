@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
-import Sidebar from "@/components/layout/Sidebar";
-import Header from "@/components/layout/Header";
-import { ModalProvider } from "@/lib/helpers/ModalContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,18 +20,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={'${geistSans.variable} ${geistMono.variable} app-body'}>
-        <ModalProvider>
-          <div className="app-container">
-            <Sidebar />
-            <div className="content-wrapper">
-              <Header />
-              <main className="main-content">
-                {children}
-              </main>
-            </div>
-          </div>
-        </ModalProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} app-body`}>
+        {children}
       </body>
     </html>
   );
