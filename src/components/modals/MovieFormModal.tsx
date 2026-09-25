@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { MovieItem, Format } from "@/types/item";
+import { MovieItem, Format, MediaGenre } from "@/types/item";
 import { createMovie, updateMovie } from "@/actions/pages/movie";
 import { getFormats } from "@/actions/attributes/format";
+import { getMediaGenres } from "@/actions/attributes/genre";
 import FranchiseInput from "@/components/ui/FranchiseInput";
 import styles from "@/styles/modal.module.css";
 import formStyles from "@/styles/form.module.css";
@@ -16,10 +17,13 @@ type Props = {
 
 export default function MovieFormModal({ item, onComplete, onCreateAnother, onClose }: Props) {
     const [formats, setFormats] = useState<Format[]>([]);
+    const [genres, setGenres] = useState<MediaGenre[]>([]);
     const [formData, setFormData] = useState({
         title: item?.title ?? "",
         owned: item?.owned ?? false,
         formatId: item?.format_id ?? 0,
+        genreId: item?.primary_genre_id?.toString() ?? "",
+        releaseYear: item?.release_year?.toString() ?? "",
         franchiseName: item?.franchise_name ?? "",
         franchiseOrder: item?.franchise_order ?? "",
         site_label: item?.site_label ?? "",
@@ -34,6 +38,7 @@ export default function MovieFormModal({ item, onComplete, onCreateAnother, onCl
                 setFormData((prev) => ({ ...prev, formatId: data[0]?.id ?? 0 }));
             }
         });
+        getMediaGenres().then(setGenres);
     }, [item]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -49,13 +54,15 @@ export default function MovieFormModal({ item, onComplete, onCreateAnother, onCl
     const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         const franchiseOrder = formData.franchiseOrder === "" ? null : Number(formData.franchiseOrder);
+        const genreId = formData.genreId === "" ? null : Number(formData.genreId);
+        const releaseYear = formData.releaseYear === "" ? null : Number(formData.releaseYear);
         if (item) {
-            await updateMovie(item.id, formData.title, formData.owned, formData.formatId, formData.franchiseName, franchiseOrder, formData.site_url, formData.site_label);
+            await updateMovie(item.id, formData.title, formData.owned, formData.formatId, genreId, releaseYear, formData.franchiseName, franchiseOrder, formData.site_url, formData.site_label);
             onComplete();
         } else {
-            await createMovie(formData.title, formData.owned, formData.formatId, formData.franchiseName, franchiseOrder, formData.site_url, formData.site_label);
+            await createMovie(formData.title, formData.owned, formData.formatId, genreId, releaseYear, formData.franchiseName, franchiseOrder, formData.site_url, formData.site_label);
             if (continueRef.current) {
-                setFormData((prev) => ({ ...prev, title: "" }));
+                setFormData((prev) => ({ ...prev, title: "", releaseYear: "" }));
                 continueRef.current = false;
                 onCreateAnother?.();
             } else {
@@ -83,6 +90,29 @@ export default function MovieFormModal({ item, onComplete, onCreateAnother, onCl
                                 <option key={f.id} value={f.id}>{f.name}</option>
                             ))}
                         </select>
+                    </div>
+                    <div className={formStyles.field}>
+                        <label className={formStyles.label} htmlFor="genreId">Genre</label>
+                        <select className={formStyles.select} id="genreId" name="genreId" value={formData.genreId} onChange={handleChange}>
+                            <option value="">No Genre</option>
+                            {genres.map((g) => (
+                                <option key={g.id} value={g.id}>{g.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className={formStyles.field}>
+                        <label className={formStyles.label} htmlFor="releaseYear">Release Year</label>
+                        <input
+                            className={formStyles.input}
+                            type="number"
+                            id="releaseYear"
+                            name="releaseYear"
+                            placeholder="e.g. 1994"
+                            min={1900}
+                            max={2100}
+                            value={formData.releaseYear}
+                            onChange={handleChange}
+                        />
                     </div>
                     <div className={formStyles.field}>
                         <label className={formStyles.label} htmlFor="franchiseName">Franchise</label>

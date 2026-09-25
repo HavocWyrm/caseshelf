@@ -13,8 +13,11 @@ export async function getMovieById(id: number): Promise<MovieItem | null> {
       collectionItem.title,
       collectionItem.type,
       collectionItem.owned,
+      collectionItem.release_year,
       movie.format_id,
       format.name AS format_name,
+      movie.primary_genre_id,
+      mediaGenre.name AS primary_genre_name,
       franchise.name AS franchise_name,
       franchiseItem.franchise_order,
       item_url.site_label,
@@ -22,6 +25,7 @@ export async function getMovieById(id: number): Promise<MovieItem | null> {
     FROM collection_item collectionItem
     INNER JOIN movie ON movie.collection_item_id = collectionItem.id
     INNER JOIN format ON format.id = movie.format_id
+    LEFT JOIN media_genre mediaGenre ON mediaGenre.id = movie.primary_genre_id
     LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
     LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
     LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
@@ -36,8 +40,11 @@ export async function getMovieById(id: number): Promise<MovieItem | null> {
         title: row.title,
         type: "movie" as const,
         owned: row.owned,
+        release_year: row.release_year ?? null,
         format_id: row.format_id,
         format_name: row.format_name,
+        primary_genre_id: row.primary_genre_id ?? null,
+        primary_genre_name: row.primary_genre_name ?? null,
         franchise_name: row.franchise_name ?? null,
         franchise_order: row.franchise_order ?? null,
         site_label: row.site_label ?? null,
@@ -50,6 +57,8 @@ export async function updateMovieDetails(
     title: string,
     owned: boolean,
     formatId: number,
+    genreId: number | null,
+    releaseYear: number | null,
     franchiseName: string,
     franchiseOrder: number | null,
     siteUrl: string,
@@ -57,12 +66,12 @@ export async function updateMovieDetails(
 ) {
     await startup();
     await pool.query(
-        `UPDATE collection_item SET title = $1, owned = $2 WHERE id = $3`,
-        [title, owned, id]
+        `UPDATE collection_item SET title = $1, owned = $2, release_year = $3 WHERE id = $4`,
+        [title, owned, releaseYear, id]
     );
     await pool.query(
-        `UPDATE movie SET format_id = $1 WHERE collection_item_id = $2`,
-        [formatId, id]
+        `UPDATE movie SET format_id = $1, primary_genre_id = $2 WHERE collection_item_id = $3`,
+        [formatId, genreId, id]
     );
     if (franchiseName.trim()) {
         await upsertFranchiseLink(id, franchiseName.trim(), franchiseOrder);

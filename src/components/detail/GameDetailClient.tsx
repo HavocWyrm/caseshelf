@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { GameItem, Platform } from "@/types/item";
+import { GameItem, Platform, GameGenre } from "@/types/item";
 import { updateGameDetails } from "@/actions/pages/gameDetails";
 import DetailLayout from "@/components/detail/DetailLayout";
 import FranchiseInput from "@/components/ui/FranchiseInput";
@@ -12,15 +12,18 @@ import { ExternalLink } from "lucide-react";
 type Props = {
     item: GameItem;
     platforms: Platform[];
+    genres: GameGenre[];
 };
 
-export default function GameDetailClient({ item, platforms }: Props) {
+export default function GameDetailClient({ item, platforms, genres }: Props) {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         title: item.title,
         owned: item.owned,
         platformId: item.platform_id,
+        genreId: item.primary_genre_id?.toString() ?? "",
+        releaseYear: item.release_year?.toString() ?? "",
         franchiseName: item.franchise_name ?? "",
         franchiseOrder: item.franchise_order?.toString() ?? "",
         siteUrl: item.site_url ?? "",
@@ -32,6 +35,8 @@ export default function GameDetailClient({ item, platforms }: Props) {
             title: item.title,
             owned: item.owned,
             platformId: item.platform_id,
+            genreId: item.primary_genre_id?.toString() ?? "",
+            releaseYear: item.release_year?.toString() ?? "",
             franchiseName: item.franchise_name ?? "",
             franchiseOrder: item.franchise_order?.toString() ?? "",
             siteUrl: item.site_url ?? "",
@@ -51,14 +56,17 @@ export default function GameDetailClient({ item, platforms }: Props) {
 
     const handleSave = async () => {
         const franchiseOrder = formData.franchiseOrder === "" ? null : Number(formData.franchiseOrder);
+        const genreId = formData.genreId === "" ? null : Number(formData.genreId);
+        const releaseYear = formData.releaseYear === "" ? null : Number(formData.releaseYear);
         const siteUrl = formData.owned ? "" : formData.siteUrl;
         const siteLabel = formData.owned ? "" : formData.siteLabel;
-        console.log("saving with siteUrl:", siteUrl, "owned:", formData.owned);
         await updateGameDetails(
             item.id,
             formData.title,
             formData.owned,
             formData.platformId,
+            genreId,
+            releaseYear,
             formData.franchiseName,
             franchiseOrder,
             siteUrl,
@@ -73,6 +81,8 @@ export default function GameDetailClient({ item, platforms }: Props) {
             title: item.title,
             owned: item.owned,
             platformId: item.platform_id,
+            genreId: item.primary_genre_id?.toString() ?? "",
+            releaseYear: item.release_year?.toString() ?? "",
             franchiseName: item.franchise_name ?? "",
             franchiseOrder: item.franchise_order?.toString() ?? "",
             siteUrl: item.site_url ?? "",
@@ -98,7 +108,6 @@ export default function GameDetailClient({ item, platforms }: Props) {
                 />
             }
         >
-
             <div className={styles.field}>
                 <span className={styles.fieldLabel}>Platform</span>
                 {isEditing ? (
@@ -109,6 +118,38 @@ export default function GameDetailClient({ item, platforms }: Props) {
                     </select>
                 ) : (
                     <span className={styles.fieldValue}>{item.platform_name}</span>
+                )}
+            </div>
+
+            <div className={styles.field}>
+                <span className={styles.fieldLabel}>Genre</span>
+                {isEditing ? (
+                    <select className={formStyles.select} name="genreId" value={formData.genreId} onChange={handleChange}>
+                        <option value="">No genre</option>
+                        {genres.map((g) => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                    </select>
+                ) : (
+                    <span className={styles.fieldValue}>{item.primary_genre_name ?? "—"}</span>
+                )}
+            </div>
+
+            <div className={styles.field}>
+                <span className={styles.fieldLabel}>Release Year</span>
+                {isEditing ? (
+                    <input
+                        className={formStyles.input}
+                        type="number"
+                        name="releaseYear"
+                        placeholder="e.g. 1994"
+                        min={1900}
+                        max={2100}
+                        value={formData.releaseYear}
+                        onChange={handleChange}
+                    />
+                ) : (
+                    <span className={styles.fieldValue}>{item.release_year ?? "—"}</span>
                 )}
             </div>
 

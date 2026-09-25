@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Format, ShowItem } from "@/types/item";
+import { Format, ShowItem, MediaGenre } from "@/types/item";
 import { updateShowDetails } from "@/actions/pages/showDetails";
 import DetailLayout from "@/components/detail/DetailLayout";
 import FranchiseInput from "@/components/ui/FranchiseInput";
@@ -12,21 +12,39 @@ import { ExternalLink } from "lucide-react";
 type Props = {
     item: ShowItem;
     formats: Format[];
+    genres: MediaGenre[];
 };
 
-export default function ShowDetailClient({ item, formats }: Props) {
+export default function ShowDetailClient({ item, formats, genres }: Props) {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         title: item.title,
         owned: item.owned,
         formatId: item.format_id,
+        genreId: item.primary_genre_id?.toString() ?? "",
+        releaseYear: item.release_year?.toString() ?? "",
         seasonsOwned: item.seasons_owned?.toString() ?? "",
         franchiseName: item.franchise_name ?? "",
         franchiseOrder: item.franchise_order?.toString() ?? "",
         siteUrl: item.site_url ?? "",
         siteLabel: item.site_label ?? "",
     });
+
+    useEffect(() => {
+        setFormData({
+            title: item.title,
+            owned: item.owned,
+            formatId: item.format_id,
+            genreId: item.primary_genre_id?.toString() ?? "",
+            releaseYear: item.release_year?.toString() ?? "",
+            seasonsOwned: item.seasons_owned?.toString() ?? "",
+            franchiseName: item.franchise_name ?? "",
+            franchiseOrder: item.franchise_order?.toString() ?? "",
+            siteUrl: item.site_url ?? "",
+            siteLabel: item.site_label ?? "",
+        });
+    }, [item]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -40,6 +58,8 @@ export default function ShowDetailClient({ item, formats }: Props) {
 
     const handleSave = async () => {
         const franchiseOrder = formData.franchiseOrder === "" ? null : Number(formData.franchiseOrder);
+        const genreId = formData.genreId === "" ? null : Number(formData.genreId);
+        const releaseYear = formData.releaseYear === "" ? null : Number(formData.releaseYear);
         const siteUrl = formData.owned ? "" : formData.siteUrl;
         const siteLabel = formData.owned ? "" : formData.siteLabel;
         const seasonsOwned = formData.seasonsOwned === "" ? 0 : Number(formData.seasonsOwned);
@@ -48,6 +68,8 @@ export default function ShowDetailClient({ item, formats }: Props) {
             formData.title,
             formData.owned,
             formData.formatId,
+            genreId,
+            releaseYear,
             seasonsOwned,
             formData.franchiseName,
             franchiseOrder,
@@ -57,24 +79,14 @@ export default function ShowDetailClient({ item, formats }: Props) {
         setIsEditing(false);
         router.refresh();
     };
-    useEffect(() => {
-        setFormData({
-            title: item.title,
-            owned: item.owned,
-            formatId: item.format_id,
-            seasonsOwned: item.seasons_owned?.toString() ?? "",
-            franchiseName: item.franchise_name ?? "",
-            franchiseOrder: item.franchise_order?.toString() ?? "",
-            siteUrl: item.site_url ?? "",
-            siteLabel: item.site_label ?? "",
-        });
-    }, [item]);
 
     const handleCancel = () => {
         setFormData({
             title: item.title,
             owned: item.owned,
             formatId: item.format_id,
+            genreId: item.primary_genre_id?.toString() ?? "",
+            releaseYear: item.release_year?.toString() ?? "",
             seasonsOwned: item.seasons_owned?.toString() ?? "",
             franchiseName: item.franchise_name ?? "",
             franchiseOrder: item.franchise_order?.toString() ?? "",
@@ -112,6 +124,38 @@ export default function ShowDetailClient({ item, formats }: Props) {
                     </select>
                 ) : (
                     <span className={styles.fieldValue}>{item.format_name}</span>
+                )}
+            </div>
+
+            <div className={styles.field}>
+                <span className={styles.fieldLabel}>Genre</span>
+                {isEditing ? (
+                    <select className={formStyles.select} name="genreId" value={formData.genreId} onChange={handleChange}>
+                        <option value="">No genre</option>
+                        {genres.map((g) => (
+                            <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                    </select>
+                ) : (
+                    <span className={styles.fieldValue}>{item.primary_genre_name ?? "—"}</span>
+                )}
+            </div>
+
+            <div className={styles.field}>
+                <span className={styles.fieldLabel}>Release Year</span>
+                {isEditing ? (
+                    <input
+                        className={formStyles.input}
+                        type="number"
+                        name="releaseYear"
+                        placeholder="e.g. 1994"
+                        min={1900}
+                        max={2100}
+                        value={formData.releaseYear}
+                        onChange={handleChange}
+                    />
+                ) : (
+                    <span className={styles.fieldValue}>{item.release_year ?? "—"}</span>
                 )}
             </div>
 
