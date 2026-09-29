@@ -10,24 +10,18 @@ type Item = {
 
 type Props = {
     items: Item[];
-    onToggle: (id: number, enabled: boolean) => Promise<void>;
+    onToggle: (id: number, enabled: boolean) => void;
     warning: string;
 };
 
 export default function ToggleList({ items, onToggle, warning }: Props) { // TODO: add warning handling
-    const [localItems, setLocalItems] = useState(items);
     const [showWarning, setShowWarning] = useState(false);
 
-    const handleToggle = async (id: number, currentEnabled: boolean) => {
+    const handleToggle = (id: number, currentEnabled: boolean) => {
         if (currentEnabled && !showWarning) {
             setShowWarning(true);
         }
-        setLocalItems((prev) =>
-            prev.map((item) =>
-                item.id === id ? { ...item, enabled: !currentEnabled } : item
-            )
-        );
-        await onToggle(id, !currentEnabled);
+        onToggle(id, !currentEnabled);
     };
 
     return (
@@ -38,7 +32,7 @@ export default function ToggleList({ items, onToggle, warning }: Props) { // TOD
                 </p>
             )}
             <ul className={styles.list}>
-                {localItems.map((item) => (
+                {items.map((item) => (
                     <li key={item.id} className={styles.listItem}>
                         <label className={styles.checkboxLabel}>
                             <input
