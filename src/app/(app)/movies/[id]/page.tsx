@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getMovieById } from "@/actions/pages/movieDetails";
 import { getFormats } from "@/actions/attributes/format";
+import { getMediaGenres } from "@/actions/attributes/genre";
 import MovieDetailClient from "@/components/detail/MovieDetailClient";
 
 export const dynamic = "force-dynamic";
@@ -11,12 +12,13 @@ type Props = {
 
 export default async function MovieDetailPage({ params }: Props) {
     const { id } = await params;
-    const [item, formats] = await Promise.all([
+    const [item, formats, genres] = await Promise.all([
         getMovieById(Number(id)),
         getFormats(),
+        getMediaGenres(),
     ]);
 
     if (!item) notFound();
 
-    return <MovieDetailClient item={item} formats={formats} />;
+    return <MovieDetailClient item={item} formats={formats} genres={genres} />;
 }

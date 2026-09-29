@@ -9,18 +9,23 @@ export type BaseItem = {
   franchise_order: number | null;
   site_label: string | null;
   site_url: string | null;
+  release_year: number | null;
 };
 
 export type GameItem = BaseItem & {
   type: "game";
   platform_id: number;
   platform_name: string;
+  primary_genre_id: number | null;
+  primary_genre_name: string | null;
 };
 
 export type MovieItem = BaseItem & {
   type: "movie";
   format_id: number;
   format_name: string;
+  primary_genre_id: number | null;
+  primary_genre_name: string | null;
 };
 
 export type ShowItem = BaseItem & {
@@ -28,6 +33,8 @@ export type ShowItem = BaseItem & {
   format_id: number;
   format_name: string;
   seasons_owned: number;
+  primary_genre_id: number | null;
+  primary_genre_name: string | null;
 };
 
 export type CollectionItem = GameItem | MovieItem | ShowItem;
@@ -38,6 +45,16 @@ export type Platform = {
 };
 
 export type Format = {
+  id: number;
+  name: string;
+};
+
+export type GameGenre = {
+  id: number;
+  name: string;
+};
+
+export type MediaGenre = {
   id: number;
   name: string;
 };

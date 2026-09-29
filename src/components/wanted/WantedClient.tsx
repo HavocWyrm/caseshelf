@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { GameItem, MovieItem, ShowItem, Platform, Format } from "@/types/item";
 import { markAsOwned } from "@/actions/pages/wanted";
 import styles from "@/styles/wanted.module.css";
+import pageStyles from "@/styles/page.module.css";
 import formStyles from "@/styles/form.module.css";
 
 type Tab = "game" | "movie" | "show";
@@ -63,21 +64,21 @@ export default function WantedClient({ games, movies, shows, platforms, formats 
 
     return (
         <div className={styles.page}>
-            <div className={styles.tabs}>
+            <div className={pageStyles.tabs}>
                 <button
-                    className={`${styles.tab} ${activeTab === "game" ? styles.tabActive : ""}`}
+                    className={`${pageStyles.tab} ${activeTab === "game" ? pageStyles.tabActive : ""}`}
                     onClick={() => setTab("game")}
                 >
                     Games
                 </button>
                 <button
-                    className={`${styles.tab} ${activeTab === "movie" ? styles.tabActive : ""}`}
+                    className={`${pageStyles.tab} ${activeTab === "movie" ? pageStyles.tabActive : ""}`}
                     onClick={() => setTab("movie")}
                 >
                     Movies
                 </button>
                 <button
-                    className={`${styles.tab} ${activeTab === "show" ? styles.tabActive : ""}`}
+                    className={`${pageStyles.tab} ${activeTab === "show" ? pageStyles.tabActive : ""}`}
                     onClick={() => setTab("show")}
                 >
                     Shows
@@ -105,7 +106,7 @@ export default function WantedClient({ games, movies, shows, platforms, formats 
             </div>
 
             {filteredItems.length === 0 ? (
-                <p className={styles.empty}>No items match your search criteria.</p>
+                <p className={pageStyles.empty}>No items match your search criteria.</p>
             ) : (
                 <table className={styles.table}>
                     <thead>

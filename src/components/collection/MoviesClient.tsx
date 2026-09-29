@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { MovieItem, Format } from "@/types/item";
 import ItemCard from "@/components/collection/ItemCard";
 import FilterBar from "@/components/ui/FilterBar";
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export default function MoviesClient({ movies, formats, franchises }: Props) {
+    const router = useRouter();
     const [search, setSearch] = useState("");
     const [owned, setOwned] = useState<"all" | "owned" | "wanted">("all");
     const [selectedFranchise, setSelectedFranchise] = useState("all");
@@ -31,6 +33,9 @@ export default function MoviesClient({ movies, formats, franchises }: Props) {
         <div className={styles.page}>
             <div className={styles.pageHeader}>
                 <AddItemButton itemType="movie" />
+                <button className="btn-outline" onClick={() => router.push("/movies/sort")}>
+                    Sort Library
+                </button>
             </div>
             <FilterBar
                 search={search}
