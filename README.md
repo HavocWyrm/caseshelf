@@ -10,6 +10,7 @@ A management and organisation tool to help you catalogue your physical media col
 
 ## Features
 - Add, edit and remove items in your physical media collection
+- Fill in details automatically from TMDB (movies and shows) and IGDB (games)
 
 ## Tech stack
 - Next.js
@@ -39,13 +40,20 @@ Prerequisites: Node.js and PostgreSQL installed and running
 | `DB_NAME` | Database name |
 | `DB_USER` | Database user |
 | `DB_PASSWORD` | Database password |
+| `METADATA_REGION` | Country code for regional metadata such as film certifications (default: `GB`) |
+
+### Metadata providers
+Optional. Without them, items are entered manually. Add credentials under **Settings → Providers**
+- **TMDB** (movies and shows): the *API Read Access Token* from your [TMDB API settings](https://www.themoviedb.org/settings/api), not the shorter API key
+- **IGDB** (games): the *Client ID* and *Client Secret* of an application registered in the [Twitch developer console](https://dev.twitch.tv/console/apps)
 
 ## Roadmap
 - [x] Item management
-- [x] UI Improvements
+- [ ] UI Improvements
 - [ ] Import/export via CSV
-- [ ] Metadata scraping via external APIs
-- [ ] Library organisation tools
+- [x] Metadata scraping via external APIs
+- [x] Library organisation tools
+- [ ] Partial ownership for shows (per-season tracking fixed)
 - [ ] Mobile UI improvements
 - [ ] Multi-user support and OAuth
 - [ ] Support for more media types (books, manga, vinyl, etc.)

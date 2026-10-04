@@ -1,52 +1,58 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Format, ShowItem, MediaGenre } from "@/types/item";
+import { Format, ShowDetail } from "@/types/item";
 import { updateShowDetails } from "@/actions/pages/showDetails";
 import DetailLayout from "@/components/detail/DetailLayout";
+import GenreList from "@/components/detail/GenreList";
+import FieldLabel from "@/components/metadata/FieldLabel";
+import UnlockButton from "@/components/metadata/UnlockButton";
+import MetadataActions from "@/components/metadata/MetadataActions";
+import MetadataSource from "@/components/metadata/MetadataSource";
 import FranchiseInput from "@/components/ui/FranchiseInput";
+import GenreSelect from "@/components/ui/GenreSelect";
+import { selectionFromGenres } from "@/lib/helpers/genreSelection";
+import { listingUrlError } from "@/lib/helpers/listingUrl";
 import styles from "@/styles/detail.module.css";
 import formStyles from "@/styles/form.module.css";
 import { ExternalLink } from "lucide-react";
 
 type Props = {
-    item: ShowItem;
+    item: ShowDetail;
     formats: Format[];
-    genres: MediaGenre[];
 };
 
-export default function ShowDetailClient({ item, formats, genres }: Props) {
+const formDataFrom = (item: ShowDetail) => ({
+    title: item.title,
+    owned: item.owned,
+    formatId: item.format_id,
+    releaseYear: item.release_year?.toString() ?? "",
+    franchiseName: item.franchise_name ?? "",
+    franchiseOrder: item.franchise_order?.toString() ?? "",
+    siteUrl: item.site_url ?? "",
+    siteLabel: item.site_label ?? "",
+    synopsis: item.synopsis ?? "",
+    seasonsOwned: item.seasons_owned?.toString() ?? "",
+    totalSeasons: item.total_seasons?.toString() ?? "",
+    network: item.network ?? "",
+    seriesStatus: item.series_status ?? "",
+});
+
+const numberOrNull = (value: string) => (value === "" ? null : Number(value));
+
+export default function ShowDetailClient({ item, formats }: Props) {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-        title: item.title,
-        owned: item.owned,
-        formatId: item.format_id,
-        genreId: item.primary_genre_id?.toString() ?? "",
-        releaseYear: item.release_year?.toString() ?? "",
-        seasonsOwned: item.seasons_owned?.toString() ?? "",
-        franchiseName: item.franchise_name ?? "",
-        franchiseOrder: item.franchise_order?.toString() ?? "",
-        siteUrl: item.site_url ?? "",
-        siteLabel: item.site_label ?? "",
-    });
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [genres, setGenres] = useState(() => selectionFromGenres(item.genres));
+    const [formData, setFormData] = useState(() => formDataFrom(item));
 
     useEffect(() => {
-        setFormData({
-            title: item.title,
-            owned: item.owned,
-            formatId: item.format_id,
-            genreId: item.primary_genre_id?.toString() ?? "",
-            releaseYear: item.release_year?.toString() ?? "",
-            seasonsOwned: item.seasons_owned?.toString() ?? "",
-            franchiseName: item.franchise_name ?? "",
-            franchiseOrder: item.franchise_order?.toString() ?? "",
-            siteUrl: item.site_url ?? "",
-            siteLabel: item.site_label ?? "",
-        });
+        setFormData(formDataFrom(item));
+        setGenres(selectionFromGenres(item.genres));
     }, [item]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
         setFormData((prev) => ({
             ...prev,
@@ -57,42 +63,38 @@ export default function ShowDetailClient({ item, formats, genres }: Props) {
     };
 
     const handleSave = async () => {
-        const franchiseOrder = formData.franchiseOrder === "" ? null : Number(formData.franchiseOrder);
-        const genreId = formData.genreId === "" ? null : Number(formData.genreId);
-        const releaseYear = formData.releaseYear === "" ? null : Number(formData.releaseYear);
-        const siteUrl = formData.owned ? "" : formData.siteUrl;
-        const siteLabel = formData.owned ? "" : formData.siteLabel;
-        const seasonsOwned = formData.seasonsOwned === "" ? 0 : Number(formData.seasonsOwned);
-        await updateShowDetails(
-            item.id,
-            formData.title,
-            formData.owned,
-            formData.formatId,
-            genreId,
-            releaseYear,
-            seasonsOwned,
-            formData.franchiseName,
-            franchiseOrder,
-            siteUrl,
-            siteLabel
-        );
+        const listingError = formData.owned ? null : listingUrlError(formData.siteUrl);
+        setSaveError(listingError);
+        if (listingError) return;
+        try {
+            await updateShowDetails(item.id, {
+                title: formData.title,
+                owned: formData.owned,
+                formatId: formData.formatId,
+                genres,
+                releaseYear: numberOrNull(formData.releaseYear),
+                franchiseName: formData.franchiseName,
+                franchiseOrder: numberOrNull(formData.franchiseOrder),
+                siteUrl: formData.owned ? "" : formData.siteUrl,
+                siteLabel: formData.owned ? "" : formData.siteLabel,
+                synopsis: formData.synopsis,
+                seasonsOwned: numberOrNull(formData.seasonsOwned) ?? 0,
+                totalSeasons: numberOrNull(formData.totalSeasons),
+                network: formData.network,
+                seriesStatus: formData.seriesStatus,
+            });
+        } catch {
+            setSaveError("Couldn't save your changes. Please try again.");
+            return;
+        }
         setIsEditing(false);
         router.refresh();
     };
 
     const handleCancel = () => {
-        setFormData({
-            title: item.title,
-            owned: item.owned,
-            formatId: item.format_id,
-            genreId: item.primary_genre_id?.toString() ?? "",
-            releaseYear: item.release_year?.toString() ?? "",
-            seasonsOwned: item.seasons_owned?.toString() ?? "",
-            franchiseName: item.franchise_name ?? "",
-            franchiseOrder: item.franchise_order?.toString() ?? "",
-            siteUrl: item.site_url ?? "",
-            siteLabel: item.site_label ?? "",
-        });
+        setSaveError(null);
+        setFormData(formDataFrom(item));
+        setGenres(selectionFromGenres(item.genres));
         setIsEditing(false);
     };
 
@@ -103,7 +105,18 @@ export default function ShowDetailClient({ item, formats, genres }: Props) {
             onEdit={() => setIsEditing(true)}
             onSave={handleSave}
             onCancel={handleCancel}
-            titleField={
+            saveError={saveError}
+            titleLock={item.locked_field.includes("title") && <UnlockButton itemId={item.id} lockableField="title" label="Title" />}
+            metadataSource={<MetadataSource metadata={item} />}
+            topBarActions={
+                <MetadataActions
+                    itemId={item.id}
+                    mediaType="show"
+                    title={item.title}
+                    metadata={item}
+                />
+            }
+            titleInput={
                 <input
                     className={formStyles.input}
                     name="title"
@@ -128,21 +141,16 @@ export default function ShowDetailClient({ item, formats, genres }: Props) {
             </div>
 
             <div className={styles.field}>
-                <span className={styles.fieldLabel}>Genre</span>
+                <FieldLabel label="Genres" itemId={item.id} lockableField="genre" lockedFields={item.locked_field} />
                 {isEditing ? (
-                    <select className={formStyles.select} name="genreId" value={formData.genreId} onChange={handleChange}>
-                        <option value="">No genre</option>
-                        {genres.map((g) => (
-                            <option key={g.id} value={g.id}>{g.name}</option>
-                        ))}
-                    </select>
+                    <GenreSelect mediaType="show" value={genres} onChange={setGenres} />
                 ) : (
-                    <span className={styles.fieldValue}>{item.primary_genre_name ?? "—"}</span>
+                    <GenreList genres={item.genres} />
                 )}
             </div>
 
             <div className={styles.field}>
-                <span className={styles.fieldLabel}>Release Year</span>
+                <FieldLabel label="Release Year" itemId={item.id} lockableField="release_year" lockedFields={item.locked_field} />
                 {isEditing ? (
                     <input
                         className={formStyles.input}
@@ -156,6 +164,51 @@ export default function ShowDetailClient({ item, formats, genres }: Props) {
                     />
                 ) : (
                     <span className={styles.fieldValue}>{item.release_year ?? "—"}</span>
+                )}
+            </div>
+
+            <div className={styles.field}>
+                <FieldLabel label="Network" itemId={item.id} lockableField="network" lockedFields={item.locked_field} />
+                {isEditing ? (
+                    <input
+                        className={formStyles.input}
+                        type="text"
+                        name="network"
+                        value={formData.network}
+                        onChange={handleChange}
+                    />
+                ) : (
+                    <span className={styles.fieldValue}>{item.network ?? "—"}</span>
+                )}
+            </div>
+            <div className={styles.field}>
+                <FieldLabel label="Total Seasons" itemId={item.id} lockableField="total_seasons" lockedFields={item.locked_field} />
+                {isEditing ? (
+                    <input
+                        className={formStyles.input}
+                        type="number"
+                        name="totalSeasons"
+                        min={1}
+                        value={formData.totalSeasons}
+                        onChange={handleChange}
+                    />
+                ) : (
+                    <span className={styles.fieldValue}>{item.total_seasons ?? "—"}</span>
+                )}
+            </div>
+            <div className={styles.field}>
+                <FieldLabel label="Series Status" itemId={item.id} lockableField="series_status" lockedFields={item.locked_field} />
+                {isEditing ? (
+                    <input
+                        className={formStyles.input}
+                        type="text"
+                        name="seriesStatus"
+                        placeholder="e.g. Ended"
+                        value={formData.seriesStatus}
+                        onChange={handleChange}
+                    />
+                ) : (
+                    <span className={styles.fieldValue}>{item.series_status ?? "—"}</span>
                 )}
             </div>
 
@@ -192,7 +245,7 @@ export default function ShowDetailClient({ item, formats, genres }: Props) {
             </div>
 
             <div className={styles.field}>
-                <span className={styles.fieldLabel}>Franchise</span>
+                <FieldLabel label="Franchise" itemId={item.id} lockableField="franchise" lockedFields={item.locked_field} />
                 {isEditing ? (
                     <>
                         <FranchiseInput
@@ -215,6 +268,21 @@ export default function ShowDetailClient({ item, formats, genres }: Props) {
                             ? `${item.franchise_name}${item.franchise_order ? ` #${item.franchise_order}` : ""}`
                             : "—"}
                     </span>
+                )}
+            </div>
+
+            <div className={styles.field}>
+                <FieldLabel label="Synopsis" itemId={item.id} lockableField="synopsis" lockedFields={item.locked_field} />
+                {isEditing ? (
+                    <textarea
+                        className={`${formStyles.input} ${formStyles.textarea}`}
+                        name="synopsis"
+                        rows={5}
+                        value={formData.synopsis}
+                        onChange={handleChange}
+                    />
+                ) : (
+                    <p className={styles.synopsis}>{item.synopsis ?? "—"}</p>
                 )}
             </div>
 

@@ -1,8 +1,9 @@
 "use client";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useModal } from "@/lib/helpers/ModalContext";
+import { getDetailRoute } from "@/lib/helpers/itemRoute";
 import { CollectionItem } from "@/types/item";
 import { platformLogoMap, formatLogoMap } from "@/lib/helpers/logoMaps";
 import styles from "@/styles/itemCard.module.css";
@@ -12,37 +13,29 @@ type Props = {
 };
 
 function getLogoUrl(item: CollectionItem): string | null {
-    if (item.type === "game") return platformLogoMap[item.platform_name] ?? null;
+    if (item.type === "game") return item.platform_igdb_id === null ? null : platformLogoMap[item.platform_igdb_id] ?? null;
     if (item.type === "movie") return formatLogoMap[item.format_name] ?? null;
     if (item.type === "show") return formatLogoMap[item.format_name] ?? null;
     return null;
 }
 
 function getDetailText(item: CollectionItem): string {
-    if (item.type === "game") return item.platform_name;
+    if (item.type === "game") return item.platform_short_name;
     if (item.type === "movie") return item.format_name;
     if (item.type === "show") return item.format_name;
     return "";
 }
 
-function getDetailRoute(item: CollectionItem): string {
-    if (item.type === "game") return `/games/${item.id}`;
-    if (item.type === "movie") return `/movies/${item.id}`;
-    if (item.type === "show") return `/shows/${item.id}`;
-    return "/";
-}
-
 export default function ItemCard({ item }: Props) {
     const { openDeleteModal } = useModal();
-    const router = useRouter();
     const logoUrl = getLogoUrl(item);
 
     return (
-        <div className={styles.card} onClick={() => router.push(getDetailRoute(item))}>
+        <div className={styles.card}>
             <div className={styles.actions}>
                 <button
                     className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
-                    onClick={(e) => { e.stopPropagation(); openDeleteModal(item); }}
+                    onClick={() => openDeleteModal(item)}
                     title="Delete"
                 >
                     <Trash2 size={14} />
@@ -63,7 +56,11 @@ export default function ItemCard({ item }: Props) {
                 )}
             </div>
 
-            <div className={styles.title}>{item.title}</div>
+            <div className={styles.title}>
+                <Link href={getDetailRoute(item)} className={styles.titleLink}>
+                    {item.title}
+                </Link>
+            </div>
         </div>
     );
 }

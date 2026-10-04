@@ -6,7 +6,7 @@ import { Platform } from "@/types/item";
 export async function getPlatforms(): Promise<Platform[]> {
   await startup();
   const result = await pool.query(`
-    SELECT id, name FROM platform WHERE enabled = true ORDER BY name
+    SELECT id::int AS id, name FROM platform WHERE enabled = true ORDER BY name
   `);
   return result.rows;
 }

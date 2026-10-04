@@ -1,11 +1,12 @@
 "use server";
-import pool from "@/lib/db";
+import pool, { withTransaction } from "@/lib/db";
 import { startup } from "@/lib/startup";
-import { GameItem } from "@/types/item";
-import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/attributes/franchise";
-import { upsertItemUrl, removeItemUrl } from "@/actions/attributes/url";
+import { GameDetail, GameDetailsInput } from "@/types/item";
+import { attachGenres } from "@/lib/repository/genre";
+import { changedLockableFields, mergeLocks } from "@/lib/helpers/lockableField";
+import { readCommonDetails, storedCommonLocks, submittedCommonLocks, textOrNull, writeCommonDetails } from "@/lib/itemDetails";
 
-export async function getGameById(id: number): Promise<GameItem | null> {
+export async function getGameById(id: number): Promise<GameDetail | null> {
     await startup();
     const result = await pool.query(`
     SELECT
@@ -16,16 +17,25 @@ export async function getGameById(id: number): Promise<GameItem | null> {
       collectionItem.release_year,
       game.platform_id,
       platform.name AS platform_name,
-      game.primary_genre_id,
-      gameGenre.name AS primary_genre_name,
+      platform.short_name AS platform_short_name,
+      platform.igdb_platform_id AS platform_igdb_id,
+      genre.name AS primary_genre_name,
       franchise.name AS franchise_name,
       franchiseItem.franchise_order,
       item_url.site_label,
-      item_url.site_url
+      item_url.site_url,
+      collectionItem.synopsis,
+      collectionItem.provider,
+      collectionItem.provider_id,
+      collectionItem.metadata_fetched_at,
+      collectionItem.locked_field,
+      game.developer,
+      game.publisher
     FROM collection_item collectionItem
     INNER JOIN game ON game.collection_item_id = collectionItem.id
     INNER JOIN platform ON platform.id = game.platform_id
-    LEFT JOIN game_genre gameGenre ON gameGenre.id = game.primary_genre_id
+    LEFT JOIN item_genre itemGenre ON itemGenre.collection_item_id = collectionItem.id AND itemGenre.is_primary
+    LEFT JOIN genre ON genre.id = itemGenre.genre_id
     LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
     LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
     LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
@@ -35,7 +45,7 @@ export async function getGameById(id: number): Promise<GameItem | null> {
     if (result.rows.length === 0) return null;
     const row = result.rows[0];
 
-    return {
+    const [item] = await attachGenres([{
         id: row.id,
         title: row.title,
         type: "game" as const,
@@ -43,44 +53,47 @@ export async function getGameById(id: number): Promise<GameItem | null> {
         release_year: row.release_year ?? null,
         platform_id: row.platform_id,
         platform_name: row.platform_name,
-        primary_genre_id: row.primary_genre_id ?? null,
+        platform_short_name: row.platform_short_name,
+        platform_igdb_id: row.platform_igdb_id ?? null,
         primary_genre_name: row.primary_genre_name ?? null,
         franchise_name: row.franchise_name ?? null,
         franchise_order: row.franchise_order ?? null,
         site_label: row.site_label ?? null,
         site_url: row.site_url ?? null,
-    };
+        synopsis: row.synopsis ?? null,
+        provider: row.provider ?? null,
+        provider_id: row.provider_id ?? null,
+        metadata_fetched_at: row.metadata_fetched_at ? new Date(row.metadata_fetched_at).toISOString() : null,
+        locked_field: row.locked_field ?? [],
+        developer: row.developer ?? null,
+        publisher: row.publisher ?? null,
+    }]);
+    return item;
 }
 
-export async function updateGameDetails(
-    id: number,
-    title: string,
-    owned: boolean,
-    platformId: number,
-    genreId: number | null,
-    releaseYear: number | null,
-    franchiseName: string,
-    franchiseOrder: number | null,
-    siteUrl: string,
-    siteLabel: string
-) {
+export async function updateGameDetails(id: number, input: GameDetailsInput) {
     await startup();
-    await pool.query(
-        `UPDATE collection_item SET title = $1, owned = $2, release_year = $3 WHERE id = $4`,
-        [title, owned, releaseYear, id]
-    );
-    await pool.query(
-        `UPDATE game SET platform_id = $1, primary_genre_id = $2 WHERE collection_item_id = $3`,
-        [platformId, genreId, id]
-    );
-    if (franchiseName.trim()) {
-        await upsertFranchiseLink(id, franchiseName.trim(), franchiseOrder);
-    } else {
-        await removeFranchiseLink(id);
-    }
-    if (siteUrl.trim()) {
-        await upsertItemUrl(id, siteUrl.trim(), siteLabel.trim() || null);
-    } else {
-        await removeItemUrl(id);
-    }
+    await withTransaction(async (client) => {
+        const stored = await readCommonDetails(client, id);
+        const result = await client.query(
+            `SELECT developer, publisher FROM game WHERE collection_item_id = $1`,
+            [id]
+        );
+        const row = result.rows[0];
+        const changed = changedLockableFields("game", {
+            ...storedCommonLocks(stored),
+            developer: row.developer,
+            publisher: row.publisher,
+        }, {
+            ...submittedCommonLocks(input),
+            developer: input.developer,
+            publisher: input.publisher,
+        });
+
+        await writeCommonDetails(client, id, input, mergeLocks(stored.locked_field, changed));
+        await client.query(
+            `UPDATE game SET platform_id = $1, developer = $2, publisher = $3 WHERE collection_item_id = $4`,
+            [input.platformId, textOrNull(input.developer), textOrNull(input.publisher), id]
+        );
+    });
 }

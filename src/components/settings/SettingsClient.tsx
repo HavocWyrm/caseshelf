@@ -1,29 +1,35 @@
 "use client";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GameGenre, MediaGenre } from "@/types/item";
+import { Genre } from "@/types/item";
+import { ProviderStatuses } from "@/types/setting";
+import { JobOverview } from "@/types/job";
 import {
     togglePlatform,
     toggleFormat,
     savePlatformOrder,
-    saveFormatOrder,
-    saveGameGenreOrder,
-    saveMediaGenreOrder,
+    saveGenreOrder,
 } from "@/actions/pages/settings";
 import ToggleList from "@/components/settings/ToggleList";
 import OrderList from "@/components/settings/OrderList";
+import ProviderSettings from "@/components/settings/ProviderSettings";
+import JobSettings from "@/components/settings/JobSettings";
 import styles from "@/styles/settings.module.css";
 import pageStyles from "@/styles/page.module.css";
 
-type Tab = "tracking" | "sorting";
+type Tab = "tracking" | "sorting" | "providers" | "jobs";
 
 type ToggleItem = { id: number; name: string; enabled: boolean };
 
 type Props = {
     platforms: ToggleItem[];
     formats: ToggleItem[];
-    gameGenres: GameGenre[];
-    mediaGenres: MediaGenre[];
+    gameGenres: Genre[];
+    movieGenres: Genre[];
+    showGenres: Genre[];
+    providerStatuses: ProviderStatuses;
+    jobs: JobOverview[];
+    staleDays: number;
 };
 
 const byName = <T extends { name: string }>(items: T[]) =>
@@ -32,8 +38,6 @@ const byName = <T extends { name: string }>(items: T[]) =>
 const withEnabled = (items: ToggleItem[], id: number, enabled: boolean) =>
     items.map((item) => (item.id === id ? { ...item, enabled } : item));
 
-// Reorders the items named in `orderedIds` into the slots they already occupy,
-// leaving hidden (disabled) items where they were so they keep their place.
 function applyOrder<T extends { id: number }>(items: T[], orderedIds: number[]): T[] {
     const byId = new Map(items.map((item) => [item.id, item]));
     const moved = new Set(orderedIds);
@@ -41,7 +45,7 @@ function applyOrder<T extends { id: number }>(items: T[], orderedIds: number[]):
     return items.map((item) => (moved.has(item.id) ? byId.get(queue.shift()!)! : item));
 }
 
-export default function SettingsClient({ platforms, formats, gameGenres, mediaGenres }: Props) {
+export default function SettingsClient({ platforms, formats, gameGenres, movieGenres, showGenres, providerStatuses, jobs, staleDays }: Props) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const activeTab = (searchParams.get("tab") as Tab) ?? "tracking";
@@ -49,7 +53,8 @@ export default function SettingsClient({ platforms, formats, gameGenres, mediaGe
     const [platformList, setPlatformList] = useState(platforms);
     const [formatList, setFormatList] = useState(formats);
     const [gameGenreList, setGameGenreList] = useState(gameGenres);
-    const [mediaGenreList, setMediaGenreList] = useState(mediaGenres);
+    const [movieGenreList, setMovieGenreList] = useState(movieGenres);
+    const [showGenreList, setShowGenreList] = useState(showGenres);
 
     const setTab = (tab: Tab) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -73,20 +78,19 @@ export default function SettingsClient({ platforms, formats, gameGenres, mediaGe
         savePlatformOrder(next.map((item) => item.id));
     };
 
-    const handleFormatReorder = (ids: number[]) => {
-        const next = applyOrder(formatList, ids);
-        setFormatList(next);
-        saveFormatOrder(next.map((item) => item.id));
-    };
-
     const handleGameGenreReorder = (ids: number[]) => {
         setGameGenreList(applyOrder(gameGenreList, ids));
-        saveGameGenreOrder(ids);
+        saveGenreOrder(ids);
     };
 
-    const handleMediaGenreReorder = (ids: number[]) => {
-        setMediaGenreList(applyOrder(mediaGenreList, ids));
-        saveMediaGenreOrder(ids);
+    const handleMovieGenreReorder = (ids: number[]) => {
+        setMovieGenreList(applyOrder(movieGenreList, ids));
+        saveGenreOrder(ids);
+    };
+
+    const handleShowGenreReorder = (ids: number[]) => {
+        setShowGenreList(applyOrder(showGenreList, ids));
+        saveGenreOrder(ids);
     };
 
     return (
@@ -104,9 +108,25 @@ export default function SettingsClient({ platforms, formats, gameGenres, mediaGe
                 >
                     Sorting
                 </button>
+                <button
+                    className={`${pageStyles.tab} ${activeTab === "providers" ? pageStyles.tabActive : ""}`}
+                    onClick={() => setTab("providers")}
+                >
+                    Providers
+                </button>
+                <button
+                    className={`${pageStyles.tab} ${activeTab === "jobs" ? pageStyles.tabActive : ""}`}
+                    onClick={() => setTab("jobs")}
+                >
+                    Jobs
+                </button>
             </div>
 
-            {activeTab === "tracking" ? (
+            {activeTab === "jobs" ? (
+                <JobSettings jobs={jobs} staleDays={staleDays} />
+            ) : activeTab === "providers" ? (
+                <ProviderSettings statuses={providerStatuses} />
+            ) : activeTab === "tracking" ? (
                 <>
                     <section className={styles.section}>
                         <h2 className={styles.sectionTitle}>Platforms</h2>
@@ -151,21 +171,18 @@ export default function SettingsClient({ platforms, formats, gameGenres, mediaGe
                         <OrderList items={gameGenreList} onReorder={handleGameGenreReorder} />
                     </section>
                     <section className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Formats</h2>
+                        <h2 className={styles.sectionTitle}>Movie Genres</h2>
                         <p className={styles.sectionDescription}>
-                            Drag formats into the order you want them shelved. Movies and shows are grouped by format first.
+                            Drag genres into the order you want them shelved. Movies are grouped by this order.
                         </p>
-                        <OrderList
-                            items={formatList.filter((item) => item.enabled)}
-                            onReorder={handleFormatReorder}
-                        />
+                        <OrderList items={movieGenreList} onReorder={handleMovieGenreReorder} />
                     </section>
                     <section className={styles.section}>
-                        <h2 className={styles.sectionTitle}>Movie &amp; Show Genres</h2>
+                        <h2 className={styles.sectionTitle}>Show Genres</h2>
                         <p className={styles.sectionDescription}>
-                            Drag genres into the order you want them shelved. Within each format, movies and shows are sorted by this order.
+                            Drag genres into the order you want them shelved. Shows are grouped by this order.
                         </p>
-                        <OrderList items={mediaGenreList} onReorder={handleMediaGenreReorder} />
+                        <OrderList items={showGenreList} onReorder={handleShowGenreReorder} />
                     </section>
                 </>
             )}

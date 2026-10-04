@@ -5,19 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.3] - 2026-10-04
 
 ### Added
-- Cover art uploads for ItemCards
-- Add a sorting settings page
+- Metadata lookup when adding items: TMDB for movies and shows, IGDB for games
+- Refresh metadata and Re-match on item detail pages
+- Fields edited by hand are locked against automatic refreshes
+- Multiple genres per item, with one primary genre
+- New metadata fields: synopsis, developer and publisher (games), runtime, director and certification (movies), total seasons, network and series status (shows)
+- Settings: Providers tab for TMDB and IGDB API keys
+- Settings: Jobs tab to match unlinked items, refresh stale metadata and clean up unused data
 
 ### Changed 
-- Filter bar now displays "No Franchises" as an option
-- Filter bar now allows fitering by whether an item has a URL link or not
-- Sorting options now available on item type pages
+- Titles sort ignoring a leading "The", "A" or "An", with numbers in natural order
+- Movies and shows are shelved by genre rather than format
+- Movie and show genres are separate lists, each with its own sort order
+- Platforms use IGDB's names, with a short name for compact views
+- Item cards and Wanted rows are real links, so they can be opened in a new tab
+- Items are edited on their detail page; the edit modal has been removed
 
-### Fixed
-- Create and Add Another button now clears the correct fields
+### Security
+- Updated Next.js to 16.3.8, clearing all known vulnerabilities reported by `npm audit`
+
+## [0.2.2] - 2026-09-30
+
+### Added
+- Library sorting function
+- Genres to collection items
+
+### Changed
+- Updated the settings page to allow custom sorting
+- Swaped to dynamic routing system
 
 ## [0.2.1] - 2026-04-14
 
