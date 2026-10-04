@@ -1,11 +1,37 @@
 "use server";
 import pool from "@/lib/db";
 import { startup } from "@/lib/startup";
+import { attachGenres } from "@/lib/repository/genre";
+import { compareNumber, compareText, compareTitle } from "@/lib/helpers/sortTitle";
 import { GameItem, MovieItem, ShowItem } from "@/types/item";
 
+type ShelfRow = {
+  title: string;
+  release_year: number | null;
+  franchise_name: string | null;
+  franchise_order: number | null;
+  genre_sort_order: number | null;
+  primary_genre_name: string | null;
+  platform_sort_order?: number | null;
+  platform_name?: string;
+};
+
+function compareShelfPosition(a: ShelfRow, b: ShelfRow): number {
+  return (
+    compareNumber(a.platform_sort_order ?? null, b.platform_sort_order ?? null) ||
+    compareText(a.platform_name ?? null, b.platform_name ?? null) ||
+    compareNumber(a.genre_sort_order, b.genre_sort_order) ||
+    compareText(a.primary_genre_name, b.primary_genre_name) ||
+    compareTitle(a.franchise_name ?? a.title, b.franchise_name ?? b.title) ||
+    compareNumber(a.franchise_order, b.franchise_order, "first") ||
+    compareTitle(a.title, b.title) ||
+    compareNumber(a.release_year, b.release_year)
+  );
+}
+
 export async function getSortedGames(): Promise<GameItem[]> {
-    await startup();
-    const result = await pool.query(`
+  await startup();
+  const result = await pool.query(`
     SELECT
       collectionItem.id,
       collectionItem.title,
@@ -14,8 +40,11 @@ export async function getSortedGames(): Promise<GameItem[]> {
       collectionItem.release_year,
       game.platform_id,
       platform.name AS platform_name,
-      game.primary_genre_id,
-      gameGenre.name AS primary_genre_name,
+      platform.short_name AS platform_short_name,
+      platform.igdb_platform_id AS platform_igdb_id,
+      platform.sort_order AS platform_sort_order,
+      genre.name AS primary_genre_name,
+      genre.sort_order AS genre_sort_order,
       franchise.name AS franchise_name,
       franchiseItem.franchise_order,
       item_url.site_label,
@@ -23,41 +52,34 @@ export async function getSortedGames(): Promise<GameItem[]> {
     FROM collection_item collectionItem
     INNER JOIN game ON game.collection_item_id = collectionItem.id
     INNER JOIN platform ON platform.id = game.platform_id
-    LEFT JOIN game_genre gameGenre ON gameGenre.id = game.primary_genre_id
+    LEFT JOIN item_genre itemGenre ON itemGenre.collection_item_id = collectionItem.id AND itemGenre.is_primary
+    LEFT JOIN genre ON genre.id = itemGenre.genre_id
     LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
     LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
     LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
     WHERE collectionItem.owned = true
-    ORDER BY
-      platform.sort_order NULLS LAST,
-      platform.name,
-      gameGenre.sort_order NULLS LAST,
-      gameGenre.name,
-      COALESCE(franchise.name, collectionItem.title),
-      franchiseItem.franchise_order NULLS FIRST,
-      collectionItem.title,
-      collectionItem.release_year NULLS LAST
   `);
-    return result.rows.map((row) => ({
-        id: row.id,
-        title: row.title,
-        type: "game" as const,
-        owned: row.owned,
-        release_year: row.release_year ?? null,
-        platform_id: row.platform_id,
-        platform_name: row.platform_name,
-        primary_genre_id: row.primary_genre_id ?? null,
-        primary_genre_name: row.primary_genre_name ?? null,
-        franchise_name: row.franchise_name ?? null,
-        franchise_order: row.franchise_order ?? null,
-        site_label: row.site_label ?? null,
-        site_url: row.site_url ?? null,
-    }));
+  return attachGenres(result.rows.sort(compareShelfPosition).map((row) => ({
+    id: row.id,
+    title: row.title,
+    type: "game" as const,
+    owned: row.owned,
+    release_year: row.release_year ?? null,
+    platform_id: row.platform_id,
+    platform_name: row.platform_name,
+    platform_short_name: row.platform_short_name,
+    platform_igdb_id: row.platform_igdb_id ?? null,
+    primary_genre_name: row.primary_genre_name ?? null,
+    franchise_name: row.franchise_name ?? null,
+    franchise_order: row.franchise_order ?? null,
+    site_label: row.site_label ?? null,
+    site_url: row.site_url ?? null,
+  })));
 }
 
 export async function getSortedMovies(): Promise<MovieItem[]> {
-    await startup();
-    const result = await pool.query(`
+  await startup();
+  const result = await pool.query(`
     SELECT
       collectionItem.id,
       collectionItem.title,
@@ -66,8 +88,8 @@ export async function getSortedMovies(): Promise<MovieItem[]> {
       collectionItem.release_year,
       movie.format_id,
       format.name AS format_name,
-      movie.primary_genre_id,
-      mediaGenre.name AS primary_genre_name,
+      genre.name AS primary_genre_name,
+      genre.sort_order AS genre_sort_order,
       franchise.name AS franchise_name,
       franchiseItem.franchise_order,
       item_url.site_label,
@@ -75,41 +97,32 @@ export async function getSortedMovies(): Promise<MovieItem[]> {
     FROM collection_item collectionItem
     INNER JOIN movie ON movie.collection_item_id = collectionItem.id
     INNER JOIN format ON format.id = movie.format_id
-    LEFT JOIN media_genre mediaGenre ON mediaGenre.id = movie.primary_genre_id
+    LEFT JOIN item_genre itemGenre ON itemGenre.collection_item_id = collectionItem.id AND itemGenre.is_primary
+    LEFT JOIN genre ON genre.id = itemGenre.genre_id
     LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
     LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
     LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
     WHERE collectionItem.owned = true
-    ORDER BY
-      format.sort_order NULLS LAST,
-      format.name,
-      mediaGenre.sort_order NULLS LAST,
-      mediaGenre.name,
-      COALESCE(franchise.name, collectionItem.title),
-      franchiseItem.franchise_order NULLS FIRST,
-      collectionItem.title,
-      collectionItem.release_year NULLS LAST
   `);
-    return result.rows.map((row) => ({
-        id: row.id,
-        title: row.title,
-        type: "movie" as const,
-        owned: row.owned,
-        release_year: row.release_year ?? null,
-        format_id: row.format_id,
-        format_name: row.format_name,
-        primary_genre_id: row.primary_genre_id ?? null,
-        primary_genre_name: row.primary_genre_name ?? null,
-        franchise_name: row.franchise_name ?? null,
-        franchise_order: row.franchise_order ?? null,
-        site_label: row.site_label ?? null,
-        site_url: row.site_url ?? null,
-    }));
+  return attachGenres(result.rows.sort(compareShelfPosition).map((row) => ({
+    id: row.id,
+    title: row.title,
+    type: "movie" as const,
+    owned: row.owned,
+    release_year: row.release_year ?? null,
+    format_id: row.format_id,
+    format_name: row.format_name,
+    primary_genre_name: row.primary_genre_name ?? null,
+    franchise_name: row.franchise_name ?? null,
+    franchise_order: row.franchise_order ?? null,
+    site_label: row.site_label ?? null,
+    site_url: row.site_url ?? null,
+  })));
 }
 
 export async function getSortedShows(): Promise<ShowItem[]> {
-    await startup();
-    const result = await pool.query(`
+  await startup();
+  const result = await pool.query(`
     SELECT
       collectionItem.id,
       collectionItem.title,
@@ -119,8 +132,8 @@ export async function getSortedShows(): Promise<ShowItem[]> {
       show.format_id,
       format.name AS format_name,
       show.seasons_owned,
-      show.primary_genre_id,
-      mediaGenre.name AS primary_genre_name,
+      genre.name AS primary_genre_name,
+      genre.sort_order AS genre_sort_order,
       franchise.name AS franchise_name,
       franchiseItem.franchise_order,
       item_url.site_label,
@@ -128,35 +141,26 @@ export async function getSortedShows(): Promise<ShowItem[]> {
     FROM collection_item collectionItem
     INNER JOIN show ON show.collection_item_id = collectionItem.id
     INNER JOIN format ON format.id = show.format_id
-    LEFT JOIN media_genre mediaGenre ON mediaGenre.id = show.primary_genre_id
+    LEFT JOIN item_genre itemGenre ON itemGenre.collection_item_id = collectionItem.id AND itemGenre.is_primary
+    LEFT JOIN genre ON genre.id = itemGenre.genre_id
     LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
     LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
     LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
     WHERE collectionItem.owned = true
-    ORDER BY
-      format.sort_order NULLS LAST,
-      format.name,
-      mediaGenre.sort_order NULLS LAST,
-      mediaGenre.name,
-      COALESCE(franchise.name, collectionItem.title),
-      franchiseItem.franchise_order NULLS FIRST,
-      collectionItem.title,
-      collectionItem.release_year NULLS LAST
   `);
-    return result.rows.map((row) => ({
-        id: row.id,
-        title: row.title,
-        type: "show" as const,
-        owned: row.owned,
-        release_year: row.release_year ?? null,
-        format_id: row.format_id,
-        format_name: row.format_name,
-        seasons_owned: row.seasons_owned,
-        primary_genre_id: row.primary_genre_id ?? null,
-        primary_genre_name: row.primary_genre_name ?? null,
-        franchise_name: row.franchise_name ?? null,
-        franchise_order: row.franchise_order ?? null,
-        site_label: row.site_label ?? null,
-        site_url: row.site_url ?? null,
-    }));
+  return attachGenres(result.rows.sort(compareShelfPosition).map((row) => ({
+    id: row.id,
+    title: row.title,
+    type: "show" as const,
+    owned: row.owned,
+    release_year: row.release_year ?? null,
+    format_id: row.format_id,
+    format_name: row.format_name,
+    seasons_owned: row.seasons_owned,
+    primary_genre_name: row.primary_genre_name ?? null,
+    franchise_name: row.franchise_name ?? null,
+    franchise_order: row.franchise_order ?? null,
+    site_label: row.site_label ?? null,
+    site_url: row.site_url ?? null,
+  })));
 }

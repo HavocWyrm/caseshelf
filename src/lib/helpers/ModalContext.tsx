@@ -6,12 +6,10 @@ import { CollectionItem } from "@/types/item";
 type ModalState =
     | null
     | { type: "add"; itemType: "game" | "movie" | "show" }
-    | { type: "edit"; item: CollectionItem }
     | { type: "delete"; item: CollectionItem };
 
 type ModalContextType = {
     openAddModal: (itemType: "game" | "movie" | "show") => void;
-    openEditModal: (item: CollectionItem) => void;
     openDeleteModal: (item: CollectionItem) => void;
     closeModal: () => void;
 };
@@ -32,10 +30,6 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
         setModalState({ type: "add", itemType });
     }, []);
 
-    const openEditModal = useCallback((item: CollectionItem) => {
-        setModalState({ type: "edit", item });
-    }, []);
-
     const openDeleteModal = useCallback((item: CollectionItem) => {
         setModalState({ type: "delete", item });
     }, []);
@@ -54,7 +48,7 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     }, [router]);
 
     return (
-        <ModalContext.Provider value={{ openAddModal, openEditModal, openDeleteModal, closeModal }}>
+        <ModalContext.Provider value={{ openAddModal, openDeleteModal, closeModal }}>
             {children}
             {modalState?.type === "add" && modalState.itemType === "game" && (
                 <GameFormModal
@@ -76,15 +70,6 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
                     onCreateAnother={handleSuccessAndContinue}
                     onClose={closeModal}
                 />
-            )}
-            {modalState?.type === "edit" && modalState.item.type === "game" && (
-                <GameFormModal item={modalState.item} onComplete={handleSuccess} onClose={closeModal} />
-            )}
-            {modalState?.type === "edit" && modalState.item.type === "movie" && (
-                <MovieFormModal item={modalState.item} onComplete={handleSuccess} onClose={closeModal} />
-            )}
-            {modalState?.type === "edit" && modalState.item.type === "show" && (
-                <ShowFormModal item={modalState.item} onComplete={handleSuccess} onClose={closeModal} />
             )}
             {modalState?.type === "delete" && (
                 <DeleteConfirmModal item={modalState.item} onComplete={handleSuccess} onClose={closeModal} />

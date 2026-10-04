@@ -1,75 +1,41 @@
 "use server";
-import pool from "@/lib/db";
+import pool, { withTransaction } from "@/lib/db";
 import { startup } from "@/lib/startup";
-import { ShowItem } from "@/types/item";
-import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/attributes/franchise";
-import { upsertItemUrl, removeItemUrl } from "@/actions/attributes/url";
+import { compareTitle } from "@/lib/helpers/sortTitle";
+import { ShowDetailsInput, ShowItem } from "@/types/item";
+import { MetadataMatch } from "@/types/metadata";
+import { applyMetadata } from "@/lib/provider/applyMetadata";
+import { fetchDetail } from "@/lib/provider/lookup";
+import { changedLockableFields } from "@/lib/helpers/lockableField";
+import { createLocks, insertItem, providerCommonLocks, providerValue, submittedCommonLocks, textOrNull, writeCommonDetails } from "@/lib/itemDetails";
+import { attachGenres } from "@/lib/repository/genre";
 
-export async function createShow(
-  title: string,
-  owned: boolean,
-  formatId: number,
-  seasonsOwned: number,
-  genreId: number | null,
-  releaseYear: number | null,
-  franchiseName: string,
-  franchiseOrder: number | null,
-  siteUrl: string,
-  siteLabel: string
-) {
+export async function createShow(input: ShowDetailsInput, match: MetadataMatch | null) {
   await startup();
-  const result = await pool.query(
-    `INSERT INTO collection_item (title, type, owned, release_year)
-     VALUES ($1, 'show', $2, $3)
-     RETURNING id`,
-    [title, owned, releaseYear]
-  );
-  const itemId = result.rows[0].id;
-  await pool.query(
-    `INSERT INTO show (collection_item_id, format_id, seasons_owned, primary_genre_id)
-     VALUES ($1, $2, $3, $4)`,
-    [itemId, formatId, seasonsOwned, genreId]
-  );
-  if (franchiseName.trim()) {
-    await upsertFranchiseLink(itemId, franchiseName.trim(), franchiseOrder);
-  }
-  if (siteUrl.trim()) {
-    await upsertItemUrl(itemId, siteUrl.trim(), siteLabel.trim() || null);
-  }
-}
-
-export async function updateShow(
-  id: number,
-  title: string,
-  owned: boolean,
-  formatId: number,
-  seasonsOwned: number,
-  genreId: number | null,
-  releaseYear: number | null,
-  franchiseName: string,
-  franchiseOrder: number | null,
-  siteUrl: string,
-  siteLabel: string
-) {
-  await startup();
-  await pool.query(
-    `UPDATE collection_item SET title = $1, owned = $2, release_year = $3 WHERE id = $4`,
-    [title, owned, releaseYear, id]
-  );
-  await pool.query(
-    `UPDATE show SET format_id = $1, seasons_owned = $2, primary_genre_id = $3 WHERE collection_item_id = $4`,
-    [formatId, seasonsOwned, genreId, id]
-  );
-  if (franchiseName.trim()) {
-    await upsertFranchiseLink(id, franchiseName.trim(), franchiseOrder);
-  } else {
-    await removeFranchiseLink(id);
-  }
-  if (siteUrl.trim()) {
-    await upsertItemUrl(id, siteUrl.trim(), siteLabel.trim() || null);
-  } else {
-    await removeItemUrl(id);
-  }
+  const detail = match ? await fetchDetail("show", String(match.providerId), null) : null;
+  await withTransaction(async (client) => {
+    const id = await insertItem(client, "show", input);
+    await client.query(
+      `INSERT INTO show (collection_item_id, format_id, seasons_owned, total_seasons, network, series_status)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+      [id, input.formatId, input.seasonsOwned, input.totalSeasons, textOrNull(input.network), textOrNull(input.seriesStatus)]
+    );
+    const changed = detail
+      ? changedLockableFields("show", {
+        ...providerCommonLocks(detail, input),
+        total_seasons: providerValue(detail, "total_seasons"),
+        network: providerValue(detail, "network"),
+        series_status: providerValue(detail, "series_status"),
+      }, {
+        ...submittedCommonLocks(input),
+        total_seasons: input.totalSeasons,
+        network: input.network,
+        series_status: input.seriesStatus,
+      })
+      : [];
+    await writeCommonDetails(client, id, input, createLocks(changed, match));
+    if (detail) await applyMetadata(id, detail, client);
+  });
 }
 
 export async function getShows(): Promise<ShowItem[]> {
@@ -84,8 +50,7 @@ export async function getShows(): Promise<ShowItem[]> {
       show.format_id,
       format.name AS format_name,
       show.seasons_owned,
-      show.primary_genre_id,
-      mediaGenre.name AS primary_genre_name,
+      genre.name AS primary_genre_name,
       franchise.name AS franchise_name,
       franchiseItem.franchise_order,
       item_url.site_label,
@@ -93,13 +58,13 @@ export async function getShows(): Promise<ShowItem[]> {
     FROM collection_item collectionItem
     INNER JOIN show ON show.collection_item_id = collectionItem.id
     INNER JOIN format ON format.id = show.format_id
-    LEFT JOIN media_genre mediaGenre ON mediaGenre.id = show.primary_genre_id
+    LEFT JOIN item_genre itemGenre ON itemGenre.collection_item_id = collectionItem.id AND itemGenre.is_primary
+    LEFT JOIN genre ON genre.id = itemGenre.genre_id
     LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
     LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
     LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
-    ORDER BY collectionItem.title
   `);
-  return result.rows.map((row) => ({
+  return attachGenres(result.rows.sort((a, b) => compareTitle(a.title, b.title)).map((row) => ({
     id: row.id,
     title: row.title,
     type: "show" as const,
@@ -108,11 +73,10 @@ export async function getShows(): Promise<ShowItem[]> {
     format_id: row.format_id,
     format_name: row.format_name,
     seasons_owned: row.seasons_owned,
-    primary_genre_id: row.primary_genre_id ?? null,
     primary_genre_name: row.primary_genre_name ?? null,
     franchise_name: row.franchise_name ?? null,
     franchise_order: row.franchise_order ?? null,
     site_label: row.site_label ?? null,
     site_url: row.site_url ?? null,
-  }));
+  })));
 }

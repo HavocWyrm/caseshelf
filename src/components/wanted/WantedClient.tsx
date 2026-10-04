@@ -1,8 +1,10 @@
 "use client";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { GameItem, MovieItem, ShowItem, Platform, Format } from "@/types/item";
 import { markAsOwned } from "@/actions/pages/wanted";
+import { getDetailRoute } from "@/lib/helpers/itemRoute";
 import styles from "@/styles/wanted.module.css";
 import pageStyles from "@/styles/page.module.css";
 import formStyles from "@/styles/form.module.css";
@@ -119,14 +121,13 @@ export default function WantedClient({ games, movies, shows, platforms, formats 
                     <tbody>
                         {filteredItems.map((item) => (
                             <tr key={item.id} className={styles.row}>
-                                <td
-                                    className={styles.titleCell}
-                                    onClick={() => router.push(`/${item.type === "game" ? "games" : item.type === "movie" ? "movies" : "shows"}/${item.id}`)}
-                                >
-                                    {item.title}
+                                <td className={styles.titleCell}>
+                                    <Link href={getDetailRoute(item)} className={styles.titleLink}>
+                                        {item.title}
+                                    </Link>
                                 </td>
                                 <td className={styles.detailCell}>
-                                    {item.type === "game" ? item.platform_name : item.format_name}
+                                    {item.type === "game" ? item.platform_short_name : item.format_name}
                                 </td>
                                 <td className={styles.actionCell}>
                                     <button

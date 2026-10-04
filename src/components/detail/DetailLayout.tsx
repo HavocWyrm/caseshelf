@@ -9,7 +9,11 @@ type Props = {
     onEdit: () => void;
     onSave: () => void;
     onCancel: () => void;
-    titleField?: React.ReactNode;
+    titleInput?: React.ReactNode;
+    titleLock?: React.ReactNode;
+    metadataSource?: React.ReactNode;
+    topBarActions?: React.ReactNode;
+    saveError?: string | null;
     children: React.ReactNode;
 };
 
@@ -19,7 +23,11 @@ export default function DetailLayout({
     onEdit,
     onSave,
     onCancel,
-    titleField,
+    titleInput,
+    titleLock,
+    metadataSource,
+    topBarActions,
+    saveError,
     children,
 }: Props) {
     const router = useRouter();
@@ -32,7 +40,10 @@ export default function DetailLayout({
                     Back
                 </button>
                 {!isEditing && (
-                    <button className="btn" onClick={onEdit}>Edit</button>
+                    <div className={styles.topActions}>
+                        {topBarActions}
+                        <button className="btn" onClick={onEdit}>Edit</button>
+                    </div>
                 )}
             </div>
 
@@ -40,16 +51,18 @@ export default function DetailLayout({
                 {isEditing ? (
                     <div className={styles.field}>
                         <span className={styles.fieldLabel}>Title</span>
-                        {titleField}
+                        {titleInput}
                     </div>
                 ) : (
-                    <h1 className={styles.title}>{title}</h1>
+                    <h1 className={styles.title}>{title}{titleLock}</h1>
                 )}
                 {children}
+                {!isEditing && metadataSource}
             </div>
 
             {isEditing && (
                 <div className={styles.editControls}>
+                    {saveError && <p className={styles.saveError} role="alert">{saveError}</p>}
                     <button className="btn-outline" onClick={onCancel}>Cancel</button>
                     <button className="btn" onClick={onSave}>Save</button>
                 </div>
