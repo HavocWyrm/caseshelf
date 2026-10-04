@@ -11,9 +11,8 @@ type Props = {
 };
 
 function getGroupLabel(item: CollectionItem): string {
-    const shelf = item.type === "game" ? item.platform_name : item.format_name;
     const genre = item.primary_genre_name ?? "No Genre";
-    return `${shelf} — ${genre}`;
+    return item.type === "game" ? `${item.platform_name} — ${genre}` : genre;
 }
 
 function getDisplayTitle(item: CollectionItem): string {

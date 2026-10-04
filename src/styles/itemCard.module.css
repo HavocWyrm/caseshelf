@@ -20,9 +20,11 @@
     gap: 0.25rem;
     opacity: 0;
     transition: opacity 0.15s;
+    z-index: 2;
 }
 
-.card:hover .actions {
+.card:hover .actions,
+.card:focus-within .actions {
     opacity: 1;
 }
 
@@ -64,6 +66,28 @@
     color: white;
     font-size: 0.875rem;
     text-align: center;
+}
+
+.titleLink {
+    color: inherit;
+    text-decoration: none;
+}
+
+.titleLink:focus-visible {
+    outline: none;
+}
+
+.titleLink::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+}
+
+.titleLink:focus-visible::after {
+    outline: 2px solid var(--color-brand);
+    outline-offset: -2px;
 }
 
 .linkButton {

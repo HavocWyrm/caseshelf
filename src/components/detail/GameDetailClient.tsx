@@ -1,50 +1,56 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { GameItem, Platform, GameGenre } from "@/types/item";
+import { GameDetail, Platform } from "@/types/item";
 import { updateGameDetails } from "@/actions/pages/gameDetails";
 import DetailLayout from "@/components/detail/DetailLayout";
+import GenreList from "@/components/detail/GenreList";
+import FieldLabel from "@/components/metadata/FieldLabel";
+import UnlockButton from "@/components/metadata/UnlockButton";
+import MetadataActions from "@/components/metadata/MetadataActions";
+import MetadataSource from "@/components/metadata/MetadataSource";
 import FranchiseInput from "@/components/ui/FranchiseInput";
+import GenreSelect from "@/components/ui/GenreSelect";
+import { selectionFromGenres } from "@/lib/helpers/genreSelection";
+import { listingUrlError } from "@/lib/helpers/listingUrl";
 import styles from "@/styles/detail.module.css";
 import formStyles from "@/styles/form.module.css";
 import { ExternalLink } from "lucide-react";
 
 type Props = {
-    item: GameItem;
+    item: GameDetail;
     platforms: Platform[];
-    genres: GameGenre[];
 };
 
-export default function GameDetailClient({ item, platforms, genres }: Props) {
+const formDataFrom = (item: GameDetail) => ({
+    title: item.title,
+    owned: item.owned,
+    platformId: item.platform_id,
+    releaseYear: item.release_year?.toString() ?? "",
+    franchiseName: item.franchise_name ?? "",
+    franchiseOrder: item.franchise_order?.toString() ?? "",
+    siteUrl: item.site_url ?? "",
+    siteLabel: item.site_label ?? "",
+    synopsis: item.synopsis ?? "",
+    developer: item.developer ?? "",
+    publisher: item.publisher ?? "",
+});
+
+const numberOrNull = (value: string) => (value === "" ? null : Number(value));
+
+export default function GameDetailClient({ item, platforms }: Props) {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({
-        title: item.title,
-        owned: item.owned,
-        platformId: item.platform_id,
-        genreId: item.primary_genre_id?.toString() ?? "",
-        releaseYear: item.release_year?.toString() ?? "",
-        franchiseName: item.franchise_name ?? "",
-        franchiseOrder: item.franchise_order?.toString() ?? "",
-        siteUrl: item.site_url ?? "",
-        siteLabel: item.site_label ?? "",
-    });
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [genres, setGenres] = useState(() => selectionFromGenres(item.genres));
+    const [formData, setFormData] = useState(() => formDataFrom(item));
 
     useEffect(() => {
-        setFormData({
-            title: item.title,
-            owned: item.owned,
-            platformId: item.platform_id,
-            genreId: item.primary_genre_id?.toString() ?? "",
-            releaseYear: item.release_year?.toString() ?? "",
-            franchiseName: item.franchise_name ?? "",
-            franchiseOrder: item.franchise_order?.toString() ?? "",
-            siteUrl: item.site_url ?? "",
-            siteLabel: item.site_label ?? "",
-        });
+        setFormData(formDataFrom(item));
+        setGenres(selectionFromGenres(item.genres));
     }, [item]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
         setFormData((prev) => ({
             ...prev,
@@ -55,39 +61,36 @@ export default function GameDetailClient({ item, platforms, genres }: Props) {
     };
 
     const handleSave = async () => {
-        const franchiseOrder = formData.franchiseOrder === "" ? null : Number(formData.franchiseOrder);
-        const genreId = formData.genreId === "" ? null : Number(formData.genreId);
-        const releaseYear = formData.releaseYear === "" ? null : Number(formData.releaseYear);
-        const siteUrl = formData.owned ? "" : formData.siteUrl;
-        const siteLabel = formData.owned ? "" : formData.siteLabel;
-        await updateGameDetails(
-            item.id,
-            formData.title,
-            formData.owned,
-            formData.platformId,
-            genreId,
-            releaseYear,
-            formData.franchiseName,
-            franchiseOrder,
-            siteUrl,
-            siteLabel
-        );
+        const listingError = formData.owned ? null : listingUrlError(formData.siteUrl);
+        setSaveError(listingError);
+        if (listingError) return;
+        try {
+            await updateGameDetails(item.id, {
+                title: formData.title,
+                owned: formData.owned,
+                platformId: formData.platformId,
+                genres,
+                releaseYear: numberOrNull(formData.releaseYear),
+                franchiseName: formData.franchiseName,
+                franchiseOrder: numberOrNull(formData.franchiseOrder),
+                siteUrl: formData.owned ? "" : formData.siteUrl,
+                siteLabel: formData.owned ? "" : formData.siteLabel,
+                synopsis: formData.synopsis,
+                developer: formData.developer,
+                publisher: formData.publisher,
+            });
+        } catch {
+            setSaveError("Couldn't save your changes. Please try again.");
+            return;
+        }
         setIsEditing(false);
         router.refresh();
     };
 
     const handleCancel = () => {
-        setFormData({
-            title: item.title,
-            owned: item.owned,
-            platformId: item.platform_id,
-            genreId: item.primary_genre_id?.toString() ?? "",
-            releaseYear: item.release_year?.toString() ?? "",
-            franchiseName: item.franchise_name ?? "",
-            franchiseOrder: item.franchise_order?.toString() ?? "",
-            siteUrl: item.site_url ?? "",
-            siteLabel: item.site_label ?? "",
-        });
+        setSaveError(null);
+        setFormData(formDataFrom(item));
+        setGenres(selectionFromGenres(item.genres));
         setIsEditing(false);
     };
 
@@ -98,7 +101,19 @@ export default function GameDetailClient({ item, platforms, genres }: Props) {
             onEdit={() => setIsEditing(true)}
             onSave={handleSave}
             onCancel={handleCancel}
-            titleField={
+            saveError={saveError}
+            titleLock={item.locked_field.includes("title") && <UnlockButton itemId={item.id} lockableField="title" label="Title" />}
+            metadataSource={<MetadataSource metadata={item} />}
+            topBarActions={
+                <MetadataActions
+                    itemId={item.id}
+                    mediaType="game"
+                    title={item.title}
+                    platformId={item.platform_id}
+                    metadata={item}
+                />
+            }
+            titleInput={
                 <input
                     className={formStyles.input}
                     name="title"
@@ -108,6 +123,7 @@ export default function GameDetailClient({ item, platforms, genres }: Props) {
                 />
             }
         >
+
             <div className={styles.field}>
                 <span className={styles.fieldLabel}>Platform</span>
                 {isEditing ? (
@@ -122,21 +138,16 @@ export default function GameDetailClient({ item, platforms, genres }: Props) {
             </div>
 
             <div className={styles.field}>
-                <span className={styles.fieldLabel}>Genre</span>
+                <FieldLabel label="Genres" itemId={item.id} lockableField="genre" lockedFields={item.locked_field} />
                 {isEditing ? (
-                    <select className={formStyles.select} name="genreId" value={formData.genreId} onChange={handleChange}>
-                        <option value="">No genre</option>
-                        {genres.map((g) => (
-                            <option key={g.id} value={g.id}>{g.name}</option>
-                        ))}
-                    </select>
+                    <GenreSelect mediaType="game" value={genres} onChange={setGenres} />
                 ) : (
-                    <span className={styles.fieldValue}>{item.primary_genre_name ?? "—"}</span>
+                    <GenreList genres={item.genres} />
                 )}
             </div>
 
             <div className={styles.field}>
-                <span className={styles.fieldLabel}>Release Year</span>
+                <FieldLabel label="Release Year" itemId={item.id} lockableField="release_year" lockedFields={item.locked_field} />
                 {isEditing ? (
                     <input
                         className={formStyles.input}
@@ -150,6 +161,35 @@ export default function GameDetailClient({ item, platforms, genres }: Props) {
                     />
                 ) : (
                     <span className={styles.fieldValue}>{item.release_year ?? "—"}</span>
+                )}
+            </div>
+
+            <div className={styles.field}>
+                <FieldLabel label="Developer" itemId={item.id} lockableField="developer" lockedFields={item.locked_field} />
+                {isEditing ? (
+                    <input
+                        className={formStyles.input}
+                        type="text"
+                        name="developer"
+                        value={formData.developer}
+                        onChange={handleChange}
+                    />
+                ) : (
+                    <span className={styles.fieldValue}>{item.developer ?? "—"}</span>
+                )}
+            </div>
+            <div className={styles.field}>
+                <FieldLabel label="Publisher" itemId={item.id} lockableField="publisher" lockedFields={item.locked_field} />
+                {isEditing ? (
+                    <input
+                        className={formStyles.input}
+                        type="text"
+                        name="publisher"
+                        value={formData.publisher}
+                        onChange={handleChange}
+                    />
+                ) : (
+                    <span className={styles.fieldValue}>{item.publisher ?? "—"}</span>
                 )}
             </div>
 
@@ -168,7 +208,7 @@ export default function GameDetailClient({ item, platforms, genres }: Props) {
             </div>
 
             <div className={styles.field}>
-                <span className={styles.fieldLabel}>Franchise</span>
+                <FieldLabel label="Franchise" itemId={item.id} lockableField="franchise" lockedFields={item.locked_field} />
                 {isEditing ? (
                     <>
                         <FranchiseInput
@@ -191,6 +231,21 @@ export default function GameDetailClient({ item, platforms, genres }: Props) {
                             ? `${item.franchise_name}${item.franchise_order ? ` #${item.franchise_order}` : ""}`
                             : "—"}
                     </span>
+                )}
+            </div>
+
+            <div className={styles.field}>
+                <FieldLabel label="Synopsis" itemId={item.id} lockableField="synopsis" lockedFields={item.locked_field} />
+                {isEditing ? (
+                    <textarea
+                        className={`${formStyles.input} ${formStyles.textarea}`}
+                        name="synopsis"
+                        rows={5}
+                        value={formData.synopsis}
+                        onChange={handleChange}
+                    />
+                ) : (
+                    <p className={styles.synopsis}>{item.synopsis ?? "—"}</p>
                 )}
             </div>
 
@@ -229,6 +284,6 @@ export default function GameDetailClient({ item, platforms, genres }: Props) {
                     ) : null}
                 </div>
             ) : null}
-        </DetailLayout >
+        </DetailLayout>
     );
 }

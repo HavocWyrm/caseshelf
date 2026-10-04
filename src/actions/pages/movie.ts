@@ -1,73 +1,41 @@
 "use server";
-import pool from "@/lib/db";
+import pool, { withTransaction } from "@/lib/db";
 import { startup } from "@/lib/startup";
-import { MovieItem } from "@/types/item";
-import { upsertFranchiseLink, removeFranchiseLink } from "@/actions/attributes/franchise";
-import { upsertItemUrl, removeItemUrl } from "@/actions/attributes/url";
+import { compareTitle } from "@/lib/helpers/sortTitle";
+import { MovieDetailsInput, MovieItem } from "@/types/item";
+import { MetadataMatch } from "@/types/metadata";
+import { applyMetadata } from "@/lib/provider/applyMetadata";
+import { fetchDetail } from "@/lib/provider/lookup";
+import { changedLockableFields } from "@/lib/helpers/lockableField";
+import { createLocks, insertItem, providerCommonLocks, providerValue, submittedCommonLocks, textOrNull, writeCommonDetails } from "@/lib/itemDetails";
+import { attachGenres } from "@/lib/repository/genre";
 
-export async function createMovie(
-    title: string,
-    owned: boolean,
-    formatId: number,
-    genreId: number | null,
-    releaseYear: number | null,
-    franchiseName: string,
-    franchiseOrder: number | null,
-    siteUrl: string,
-    siteLabel: string
-) {
+export async function createMovie(input: MovieDetailsInput, match: MetadataMatch | null) {
     await startup();
-    const result = await pool.query(
-        `INSERT INTO collection_item (title, type, owned, release_year)
-     VALUES ($1, 'movie', $2, $3)
-     RETURNING id`,
-        [title, owned, releaseYear]
-    );
-    const itemId = result.rows[0].id;
-    await pool.query(
-        `INSERT INTO movie (collection_item_id, format_id, primary_genre_id)
-     VALUES ($1, $2, $3)`,
-        [itemId, formatId, genreId]
-    );
-    if (franchiseName.trim()) {
-        await upsertFranchiseLink(itemId, franchiseName.trim(), franchiseOrder);
-    }
-    if (siteUrl.trim()) {
-        await upsertItemUrl(itemId, siteUrl.trim(), siteLabel.trim() || null);
-    }
-}
-
-export async function updateMovie(
-    id: number,
-    title: string,
-    owned: boolean,
-    formatId: number,
-    genreId: number | null,
-    releaseYear: number | null,
-    franchiseName: string,
-    franchiseOrder: number | null,
-    siteUrl: string,
-    siteLabel: string
-) {
-    await startup();
-    await pool.query(
-        `UPDATE collection_item SET title = $1, owned = $2, release_year = $3 WHERE id = $4`,
-        [title, owned, releaseYear, id]
-    );
-    await pool.query(
-        `UPDATE movie SET format_id = $1, primary_genre_id = $2 WHERE collection_item_id = $3`,
-        [formatId, genreId, id]
-    );
-    if (franchiseName.trim()) {
-        await upsertFranchiseLink(id, franchiseName.trim(), franchiseOrder);
-    } else {
-        await removeFranchiseLink(id);
-    }
-    if (siteUrl.trim()) {
-        await upsertItemUrl(id, siteUrl.trim(), siteLabel.trim() || null);
-    } else {
-        await removeItemUrl(id);
-    }
+    const detail = match ? await fetchDetail("movie", String(match.providerId), null) : null;
+    await withTransaction(async (client) => {
+        const id = await insertItem(client, "movie", input);
+        await client.query(
+            `INSERT INTO movie (collection_item_id, format_id, runtime_minutes, director, certification)
+     VALUES ($1, $2, $3, $4, $5)`,
+            [id, input.formatId, input.runtimeMinutes, textOrNull(input.director), textOrNull(input.certification)]
+        );
+        const changed = detail
+            ? changedLockableFields("movie", {
+                ...providerCommonLocks(detail, input),
+                runtime_minutes: providerValue(detail, "runtime_minutes"),
+                director: providerValue(detail, "director"),
+                certification: providerValue(detail, "certification"),
+            }, {
+                ...submittedCommonLocks(input),
+                runtime_minutes: input.runtimeMinutes,
+                director: input.director,
+                certification: input.certification,
+            })
+            : [];
+        await writeCommonDetails(client, id, input, createLocks(changed, match));
+        if (detail) await applyMetadata(id, detail, client);
+    });
 }
 
 export async function getMovies(): Promise<MovieItem[]> {
@@ -81,8 +49,7 @@ export async function getMovies(): Promise<MovieItem[]> {
       collectionItem.release_year,
       movie.format_id,
       format.name AS format_name,
-      movie.primary_genre_id,
-      mediaGenre.name AS primary_genre_name,
+      genre.name AS primary_genre_name,
       franchise.name AS franchise_name,
       franchiseItem.franchise_order,
       item_url.site_label,
@@ -90,13 +57,13 @@ export async function getMovies(): Promise<MovieItem[]> {
     FROM collection_item collectionItem
     INNER JOIN movie ON movie.collection_item_id = collectionItem.id
     INNER JOIN format ON format.id = movie.format_id
-    LEFT JOIN media_genre mediaGenre ON mediaGenre.id = movie.primary_genre_id
+    LEFT JOIN item_genre itemGenre ON itemGenre.collection_item_id = collectionItem.id AND itemGenre.is_primary
+    LEFT JOIN genre ON genre.id = itemGenre.genre_id
     LEFT JOIN franchise_item franchiseItem ON franchiseItem.collection_item_id = collectionItem.id
     LEFT JOIN franchise ON franchise.id = franchiseItem.franchise_id
     LEFT JOIN item_url ON item_url.collection_item_id = collectionItem.id
-    ORDER BY collectionItem.title
   `);
-    return result.rows.map((row) => ({
+    return attachGenres(result.rows.sort((a, b) => compareTitle(a.title, b.title)).map((row) => ({
         id: row.id,
         title: row.title,
         type: "movie" as const,
@@ -104,11 +71,10 @@ export async function getMovies(): Promise<MovieItem[]> {
         release_year: row.release_year ?? null,
         format_id: row.format_id,
         format_name: row.format_name,
-        primary_genre_id: row.primary_genre_id ?? null,
         primary_genre_name: row.primary_genre_name ?? null,
         franchise_name: row.franchise_name ?? null,
         franchise_order: row.franchise_order ?? null,
         site_label: row.site_label ?? null,
         site_url: row.site_url ?? null,
-    }));
+    })));
 }
